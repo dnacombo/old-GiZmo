@@ -7,11 +7,10 @@ end
 m = GIZ.model(GIZ.imod);
 
 Yindataframe = isempty(m.Y.dimsplit);
-Xindataframe = emptycells({m.X.dimsplit});
 
 dataframestring = 'fr$';
 
-formula = [fastif(Yindataframe,dataframestring,'') fastif(isempty(m.Y.event), 'Y', m.Y.event) ' ~ '];
+formula = [fastif(Yindataframe,[dataframestring m.Y.event],'Y') ' ~ '];
 
 
 switch m.type
@@ -28,7 +27,7 @@ switch m.type
         for i_fx = 1:numel(m.X)
             switch m.X(i_fx).effect
                 case 'fix'
-                    formula = [formula fastif(Xindataframe(i_fx),[dataframestring m.X(i_fx).event],'Y') ];
+                    formula = [formula dataframestring m.X(i_fx).event ];
                     if not(i_fx == numel(m.X))
                         formula = [formula ' + '];
                     end

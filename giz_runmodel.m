@@ -33,13 +33,11 @@ m = GIZ.model(GIZ.imod);
 % now need to create a R script and run it.
 % first we check how we're going to play around with data in dataframe and
 % outside.
-Y2split = ~isempty(m.Y.dimsplit);
-X2split = ~emptycells({m.X.dimsplit});
-Allatonce = all([~Y2split ~X2split]);
+% if we're not planning to split Y, then not.
+Allatonce = isempty(m.Y.dimsplit);
 
 % start script here.
 txt = {
-%     'require(plyr)'% plyr has some ply functions that  we may use below.
     % change to the correct directory
     ['setwd(''' strrep(GIZ.wd,'\','/') ''')']
     ''
@@ -79,12 +77,7 @@ formula = giz_model_formula(GIZ);
 
 switch m.type
     case 'glm'
-        if any(X2split)
-            % call glm with formula and family
-            txt = [txt; ['    glm(' formula ', family= ' m.family ')']];
-        else
-            txt = [txt; ['    glm.fit(x=x,y=Y, family= ' m.family '() )']];
-        end
+        txt = [txt; ['    glm.fit(x=x,y=Y, family= ' m.family '() )']];
     case 'lmer'
         error('todo')
         line = 'lmer(';
@@ -92,9 +85,9 @@ end
 txt = [txt;'}';{''}];
 
 %%%%%%%% end of estimation function
-%%% here we prepare the design matrix if possible
-if ~any(X2split)
-    txt = [txt; 
+%%% here we prepare the design matrix if necessary
+if not(Allatonce)
+    txt = [txt;
         'fr <- GiZframe'
         'x <- model.matrix(' regexprep(formula,'.*(~.*)','$1') ')'];
 end
@@ -124,7 +117,9 @@ if Allatonce
             error('todo')
             line = 'lmer(';
     end
-else % repeatedly (in a while loop) if we need to scan a bigger data file
+else
+    % repeatedly (in a while loop) if we need to scan a bigger data file
+    
     % first need to delete older files
     switch m.type
         case 'glm'
@@ -138,41 +133,41 @@ else % repeatedly (in a while loop) if we need to scan a bigger data file
     
     txt = [txt;
         {''}
+        % open file for reading
         ['fid <- file(description = "' m.name '_dat.dat",open="rb" )']
+        % start while loop
         'while (T) {'
+        % read chunck of data
         ['    dat <- readBin(con=fid,what="numeric",n=nblocs*nobss,size=4,endian="little")']
+        % if we're done, break
         '    if (length(dat) == 0) break '
+        % reshape data
         '    dim(dat) <- c(nobss,length(dat)/nobss)'
+        % apply the model fit to that chunck
         '    res <- apply(dat,2,f,fr=GiZframe)'
         ];
     switch m.type
         case 'glm'
-%             % we need to permute dimensins before writing to match original
-%             % dimensions.
-%             % in giz_2dataframe, we've permuted [dimsm dimsplit]
-%             % here we'll reverse permute...
-%             
-%             dimsm = m.(fastif(Y2split,'Y','X')).dimsm;
-%             dimsplit = [m.(fastif(Y2split,'Y','X')).dimsplit];
-%             order = [dimsm dimsplit];
-%             inverseorder(order) = 1:numel(order);
-%             inverseorderstr = sprintf('c(%g,%g,%g)',inverseorder);
             txt = [txt;
                 {''}
+                % extract coefs and resid
                 '    coefs = sapply(res,coef)'
                 '    residuals = sapply(res,resid)'
-                writebin([m.name '_coefs.dat'],'coefs');%['aperm(coefs,' inverseorderstr ')'])
-                writebin([m.name '_resids.dat'],'residuals');%['aperm(residuals,' inverseorderstr ')'])
+                % save chunk of coefs and resid
+                writebin([m.name '_coefs.dat'],'coefs');
+                writebin([m.name '_resids.dat'],'residuals');
                 ];
         case 'lmer'
             error('todo')
     end
     txt = [txt;
         '}'
+        % done, close file
         'close(fid)'
         ];
 end
 
+%%%%%%%%%%%%% now actually write the script.
 fid = fopen(fullfile(GIZ.wd,[m.name '.R']),'wt');
 for i = 1:numel(txt)
     fprintf(fid,'%s\n',txt{i});
@@ -186,6 +181,7 @@ end
 str = ['R CMD BATCH ' [m.name '.R']];
 fprintf(fid,'%s\n',str);
 fclose(fid);
+%%%%%%%%%%%%%%%%%% done. Run it!
 if isunix
     !chmod +x Runscript
 end

@@ -11,35 +11,32 @@ function GIZ = giz_model_Y(GIZ,idat)
 if not(exist('GIZ','var'))
     GIZ = evalin('caller','GIZ');
 end
+
+% clear eventual results
 GIZ = giz_clearmodel(GIZ);
+
 if isnumeric(idat)
     % assume we're pointing to DATA
-    GIZ.model(GIZ.imod).Y.idat = idat;
+    GIZ = giz_model_idat(GIZ,idat);
     GIZ.model(GIZ.imod).Y.event = '';
     
-    test = GIZ.DATA{GIZ.model(GIZ.imod).Y.idat}.DAT;
-    test = test(1:min(numel(test),1000));
+    % assume we're pointing to continuous data
+    GIZ.model(GIZ.imod).family = 'gaussian';
     
-    switch numel(unique(test))
-        case 2
-            GIZ.model(GIZ.imod).family = 'binomial';
-        otherwise
-            GIZ.model(GIZ.imod).family = 'gaussian';
-    end
-    GIZ.model(GIZ.imod).Y.dimsm = 3;
+    GIZ.model(GIZ.imod).Y.dimsm = GIZ.DATA{GIZ.model(GIZ.imod).idat}.eventdim;
     % data is 3D and we will model 3rd dimension. We just repeat the same
     % model for the 2 other dimensions
-    GIZ.model(GIZ.imod).Y.dimsplit = [1 2];
+    GIZ.model(GIZ.imod).Y.dimsplit = setxor(1:ndims(GIZ.DATA{GIZ.model(GIZ.imod).idat}.DAT),GIZ.model(GIZ.imod).Y.dimsm);
 elseif iscell(idat)
     % assume we're pointing to an event
     event = idat{2};
     idat = idat{1};
     
-    GIZ.model(GIZ.imod).Y.idat = idat;
+    GIZ = giz_model_idat(GIZ,idat);
     GIZ.model(GIZ.imod).Y.event = event;
     
     % test to find distribution family of Y
-    test = [GIZ.DATA{GIZ.model(GIZ.imod).Y.idat}.event.(event)];
+    test = [GIZ.DATA{GIZ.model(GIZ.imod).idat}.event.(event)];
     test = test(1:min(numel(test),1000));
     switch numel(unique(test))
         case 2
@@ -48,7 +45,7 @@ elseif iscell(idat)
             GIZ.model(GIZ.imod).family = 'gaussian';
     end
     % assume we're pointing to just the dimension that will be modeled.
-    GIZ.model(GIZ.imod).Y.dimsm = 3;
+    GIZ.model(GIZ.imod).Y.dimsm = GIZ.DATA{GIZ.model(GIZ.imod).idat}.eventdim;
     GIZ.model(GIZ.imod).Y.dimsplit = [];
 else
     error('when defining model data')

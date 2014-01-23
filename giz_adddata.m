@@ -28,7 +28,7 @@ elseif isstruct(DATA) && isfield(DATA,'dims')
 elseif isstruct(DATA) && isfield(DATA,'setname')
     % assume EEG structure.
     EEG = DATA;clear DATA
-    DATA.DAT = EEG.data;
+    DATA.DAT = eeg_getdatact(EEG);
     DATA.dims(1).name = 'channels';
     DATA.dims(1).range = {EEG.chanlocs.labels};
     DATA.dims(1).unit = '\{mu}V';
