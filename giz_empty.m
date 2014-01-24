@@ -5,6 +5,8 @@ function GIZ = giz_empty
 
 GIZ = struct;
 GIZ.wd = cd;
+GIZ.idat = 0;
+GIZ.imod = 0;
 % DATA structures
 GIZ.DATA = {};
 % format will be:
@@ -39,17 +41,6 @@ GIZ.DATA = {};
 % {NaN 512 [1 2 4 ...]}% for an event present at sample 512 for trials 1 2 4 etc.
 
 % model description:
-GIZ.model = {};
-% GIZ.model{}.type = '';% type = lm, glm, lmer...
-% GIZ.model{}.Y.idat = [];% pointer to DATA or event
-% GIZ.model{}.Y.event = '';% if not empty, should indicate what event to use as data
-% GIZ.model{}.Y.dimsm = [];% modeled dimensions
-% GIZ.model{}.Y.dimsplit = [];% replicated dimensions
-
-% % pointers to all predictors
-% GIZ.model{}.X = [];% pointers to event structure
-% GIZ.model{}.Xfix = [];
-% GIZ.model{}.Xfixfact = 0|1; % true if Xfix are factors
-% GIZ.model{}.Xrand = [];
+GIZ.model = [];
 
 

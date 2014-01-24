@@ -13,8 +13,15 @@ for i = 1:numel(shouldbehere)
         error(['Missing ' m.name shouldbehere{i} '. Make sure you''ve run model estimation.']);
     end
 end
-GIZ.model(GIZ.imod).coefficients = loadbin([m.name '_coefs.mat']);
-GIZ.model(GIZ.imod).residuals = loadbin([m.name '_resids.mat']);
+dimsm = m.Y.dimsm;
+dimsplit = m.Y.dimsplit;
+s = size(GIZ.DATA{m.idat}.DAT);
+f = dir([m.name '_coefs.dat']);
+coefss = [s(dimsplit)];
+ncoefs = f.bytes / (4*prod(coefss));
+coefss = [ncoefs coefss];
+GIZ.model(GIZ.imod).coefficients = ipermute(reshape(loadbin([m.name '_coefs.dat']),coefss),[dimsm dimsplit]);
+GIZ.model(GIZ.imod).residuals = ipermute(reshape(loadbin([m.name '_resids.dat']),s([dimsm dimsplit])),[dimsm dimsplit]);
 
 function d = loadbin(fn)
 

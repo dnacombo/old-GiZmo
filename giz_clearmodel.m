@@ -6,8 +6,11 @@ function GIZ = giz_clearmodel(GIZ)
 
 
 fields2remove = {'coefficients','residuals'};
+for i = 1:numel(fields2remove)
+    test(i) = isfield(GIZ.model(GIZ.imod),fields2remove{i}) && ~isempty(GIZ.model(GIZ.imod).(fields2remove{i}));
+end
 
-if any(isfield(GIZ.model(GIZ.imod),fields2remove))
+if any(test)
     [rep] = questdlg('This will clear the current model estimates. Are you sure?', 'Clearing model estimates','Yes','No','Yes');
     switch rep
         case 'No'
