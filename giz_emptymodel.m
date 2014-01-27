@@ -21,8 +21,8 @@ if GIZ.imod == 0 || imod == 0
 end
 defmod.name = '';
 defmod.type = '';
-defmod.family = '';% distribution family of data
 defmod.idat = [];% pointer to DATA index
+defmod.Y.family = '';% distribution family of data
 defmod.Y.event = '';% event field to be used
 %                                  if this stays empty, we'll use the
 %                                  DATA(idat).DAT directly. 

@@ -77,7 +77,7 @@ formula = giz_model_formula(GIZ);
 
 switch m.type
     case 'glm'
-        txt = [txt; ['    glm.fit(x=x,y=Y, family= ' m.family '() )']];
+        txt = [txt; ['    glm.fit(x=x,y=Y, family= ' m.Y.family '() )']];
     case 'lmer'
         error('todo')
         line = 'lmer(';

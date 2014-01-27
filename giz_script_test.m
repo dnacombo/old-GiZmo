@@ -4,9 +4,9 @@
 
 addpath(fileparts(which(mfilename)))
 
-% cd /DATAtest
+cd /DATAtest
 % EEG = pop_loadset;
-cd /Gal_01/Max/Test
+% cd /Gal_01/Max/Test
 % EEG = pop_loadset('APP2_S001_viscor_sacrej_icacor.set');
 % cd /Osz_01/Max/test
 
@@ -14,9 +14,9 @@ GIZ = giz_empty;
 GIZ = giz_adddata(GIZ,EEG);
 
 GIZ = giz_emptymodel(GIZ);
-GIZ.model(GIZ.imod).name = 'test03';
+GIZ.model(GIZ.imod).name = 'test01';
 
-GIZ = giz_model_Y(GIZ,1);
+GIZ = giz_model_Y(GIZ,'ReportCorrect');
 % GIZ = giz_model_Y(GIZ,{1 'ReportCorrect'});
 GIZ = giz_model_X(GIZ,{'StimUnc' 'StimExc' 'LeftRight'});
 % GIZ = giz_model_X(GIZ,1);
