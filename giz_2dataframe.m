@@ -32,18 +32,18 @@ else % then we're pushing a onedimentional event as Y.
     % X(:,1) contains that data
     X{1} = m.Y.event;
 end
-% now for each predictor
+% now add each predictor
 for i_X = 1:numel(m.X)
     X{~issplit+i_X}= m.X(i_X).event;
 end
 
-% now we'll create a dataframe of X rows
+% create a dataframe for X (and Y if not issplit) with as many rows as
+% there are events.
 frame = struct2table(e,1,X);
 
 % and a numeric variable dat with the tosplit data.
 % later we'll need to pass information to runmodel so that it knows what
 % it is supposed to split and what not.
-
 if exist('Y','var')
     dat = Y;
 end

@@ -1,7 +1,7 @@
 function GIZ = giz_emptymodel(GIZ,imod,varargin)
 
 % GIZ = giz_emptymodel(GIZ)
-% add an empty model (or clear existing model) 
+% add an empty model
 % in GIZ structure models point to data and events
 
 newmod = vararg2struct(varargin);
@@ -10,7 +10,7 @@ if not(exist('GIZ','var'))
 end
 
 if not(exist('imod','var')) || isempty(imod)
-    imod = GIZ.imod;
+    imod = GIZ.imod + 1;
 else
     GIZ.imod = imod;
 end
@@ -39,6 +39,7 @@ defmod.X.effect = '';% 'fix' or 'rand'
 defmod.X.isfact = [];% true if it's a factor
 defmod.coefficients = [];
 defmod.residuals = [];
+defmod.info = [];
 
 if isempty(GIZ.model)
     GIZ.model = setdef(newmod,defmod);

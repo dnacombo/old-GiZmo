@@ -1,31 +1,40 @@
-function [GIZ] = giz_readmodel(GIZ)
+function [GIZ] = giz_readmodel(GIZ,imod)
+
+% [GIZ] = giz_readmodel(GIZ,imod)
+% read run model into memory.
 
 % first check presence of results files for the current model
 if not(exist('GIZ','var'))
     GIZ = evalin('caller','GIZ');
 end
-
-m = GIZ.model(GIZ.imod);
-shouldbehere = {'.R' '.Rout' '_coefs.dat' '_resids.dat'};
-for i = 1:numel(shouldbehere)
-    f = dir([m.name shouldbehere{i}]);
-    if isempty(f)
-        error(['Missing ' m.name shouldbehere{i} '. Make sure you''ve run model estimation.']);
-    end
+if not(exist('imod','var')) || isempty(imod)
+    imod = GIZ.imod;
 end
-dimsm = m.Y.dimsm;
-dimsplit = m.Y.dimsplit;
-s = size(GIZ.DATA{m.idat}.DAT);
-f = dir([m.name '_coefs.dat']);
-coefss = [s(dimsplit)];
-ncoefs = f.bytes / (4*prod(coefss));
-coefss = [ncoefs coefss];
-GIZ.model(GIZ.imod).coefficients = ipermute(reshape(loadbin([m.name '_coefs.dat']),coefss),[dimsm dimsplit]);
-GIZ.model(GIZ.imod).residuals = ipermute(reshape(loadbin([m.name '_resids.dat']),s([dimsm dimsplit])),[dimsm dimsplit]);
+for imod = imod
+    m = GIZ.model(imod);
+    shouldbehere = {'.R' '.Rout' '_coefs.dat' '_resids.dat'};
+    for i = 1:numel(shouldbehere)
+        f = dir([m.name shouldbehere{i}]);
+        if isempty(f)
+            error(['Missing ' m.name shouldbehere{i} '. Make sure you''ve run model estimation.']);
+        end
+    end
+    dimsm = m.Y.dimsm;
+    dimsplit = m.Y.dimsplit;
+    s = size(GIZ.DATA{m.idat}.DAT);
+    f = dir([m.name '_coefs.dat']);
+    coefss = [s(dimsplit)];
+    ncoefs = f.bytes / (4*prod(coefss));
+    coefss = [ncoefs coefss];
+    
+    GIZ.model(imod).coefficients = ipermute(reshape(loadbin([m.name '_coefs.dat']),coefss),[dimsm dimsplit]);
+    GIZ.model(imod).residuals = ipermute(reshape(loadbin([m.name '_resids.dat']),s([dimsm dimsplit])),[dimsm dimsplit]);
+    GIZ.model(imod).info = load([m.name '_info.mat']);
+end
 
 function d = loadbin(fn)
 
 fid = fopen(fn,'rb','l');
-d = fread(fid,Inf,'single');
+d = fread(fid,Inf,'single=>single');
 fclose(fid);
 

@@ -27,6 +27,7 @@ elseif isstruct(DATA) && isfield(DATA,'dims')
     GIZ.idat = ndat+1;
 elseif isstruct(DATA) && isfield(DATA,'setname')
     % assume EEG structure.
+    disp(['Adding ' EEG.setname ' to GIZ.DATA'])
     EEG = DATA;clear DATA
     DATA.DAT = eeg_getdatact(EEG);
     DATA.dims(1).name = 'channels';
