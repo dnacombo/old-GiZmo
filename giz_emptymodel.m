@@ -2,12 +2,12 @@ function GIZ = giz_emptymodel(GIZ,imod,varargin)
 
 % GIZ = giz_emptymodel(GIZ)
 % add an empty model
-% in GIZ structure models point to data and events
+% We possibly add model parameters right here via varargin.
+% e.g. 'name','testmodel'
+%
 
 newmod = vararg2struct(varargin);
-if not(exist('GIZ','var'))
-    GIZ = evalin('caller','GIZ');
-end
+defifnotexist('GIZ',evalin('caller','GIZ'));
 
 if not(exist('imod','var')) || isempty(imod)
     imod = GIZ.imod + 1;

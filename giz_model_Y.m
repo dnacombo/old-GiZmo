@@ -8,9 +8,7 @@ function GIZ = giz_model_Y(GIZ,idat)
 % if idat is a cell, it should have 2 elements, one pointing to a DATA
 % structure, the second (a string) pointing to an event of that DATA
 
-if not(exist('GIZ','var'))
-    GIZ = evalin('caller','GIZ');
-end
+defifnotexist('GIZ',evalin('caller','GIZ'));
 
 % clear eventual results
 GIZ = giz_clearmodel(GIZ);

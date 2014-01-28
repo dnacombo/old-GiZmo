@@ -4,12 +4,8 @@ function [GIZ] = giz_readmodel(GIZ,imod)
 % read run model into memory.
 
 % first check presence of results files for the current model
-if not(exist('GIZ','var'))
-    GIZ = evalin('caller','GIZ');
-end
-if not(exist('imod','var')) || isempty(imod)
-    imod = GIZ.imod;
-end
+defifnotexist('GIZ',evalin('caller','GIZ'));
+defifnotexist('imod',GIZ.imod);
 for imod = imod
     m = GIZ.model(imod);
     shouldbehere = {'.R' '.Rout' '_coefs.dat' '_resids.dat'};

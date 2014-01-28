@@ -1,13 +1,13 @@
 function GIZ = giz_adddata(GIZ,DATA,varargin)
 
-if not(exist('GIZ','var'))||isempty(GIZ)
-    GIZ = giz_empty;
-end
-
-
+defifnotexist('GIZ',evalin('caller','GIZ'));
 ndat = numel(GIZ.DATA);
+
+defs.idat = ndat+1;
+s = setdef(vararg2struct(varargin),defs);
+
 if isempty(DATA)
-    GIZ.DATA = [];
+    GIZ.DATA(s.idat) = [];
 elseif isnumeric(DATA)
     DATA = struct('DAT',DATA);
     for i_dim = 1:ndims(DATA.DAT)
@@ -23,12 +23,15 @@ elseif iscell(DATA) && isstruct(DATA{1}) && isfield(DATA{1},'dims')
     end
 elseif isstruct(DATA) && isfield(DATA,'dims')
     % assume local format DATA structure
-    GIZ.DATA{ndat+1} = DATA;
-    GIZ.idat = ndat+1;
+    GIZ.DATA{s.idat} = DATA;
+    GIZ.idat = s.idat;
 elseif isstruct(DATA) && isfield(DATA,'setname')
     % assume EEG structure.
-    disp(['Adding ' EEG.setname ' to GIZ.DATA'])
     EEG = DATA;clear DATA
+    disp(['Adding ' EEG.setname ' to GIZ.DATA'])
+    DATA.urfname = fullfile(EEG.filepath,EEG.filename);
+    DATA.ursetname = EEG.setname;
+    
     DATA.DAT = eeg_getdatact(EEG);
     DATA.dims(1).name = 'channels';
     DATA.dims(1).range = {EEG.chanlocs.labels};
@@ -44,8 +47,8 @@ elseif isstruct(DATA) && isfield(DATA,'setname')
     DATA.event = tmp.datasetinfo.trialinfo;
     DATA.eventdim = 3;
     
-    GIZ.DATA{ndat+1} = DATA;
-    GIZ.idat = ndat+1;
+    GIZ.DATA{s.idat} = DATA;
+    GIZ.idat = s.idat;
 elseif isstruct(DATA) && isfield(DATA,'cluster')
     % assume STUDY structure.
     

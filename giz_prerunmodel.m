@@ -4,9 +4,7 @@ function [ok] = giz_prerunmodel(GIZ)
 % prepare model data files (frame and dat) on disk.
 % later to be loaded in R
 
-if not(exist('GIZ','var'))
-    GIZ = evalin('caller','GIZ');
-end
+defifnotexist('GIZ',evalin('caller','GIZ'));
 
 [dat, frame] = giz_2dataframe(GIZ);
 

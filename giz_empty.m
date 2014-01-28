@@ -10,6 +10,8 @@ GIZ.imod = 0;
 % DATA structures
 GIZ.DATA = {};
 % format will be:
+% GIZ.DATA.urfname = whatever file it comes from;
+% GIZ.DATA.ursetname = whatever description;
 % GIZ.DATA{}.DAT = [];% data (single)
 % GIZ.DATA{}.dims(1).name = '';% 'time' 'trials' 'channels'...
 % GIZ.DATA{}.dims(1).range = {};% or []; channel names, time points, trial numbers...

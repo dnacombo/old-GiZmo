@@ -13,22 +13,15 @@ function GIZ = giz_model_X(GIZ, event, type, isfact)
 %
 % isfact specifies if a given predictor should be treated as a factor.
 
-if not(exist('GIZ','var'))
-    GIZ = evalin('caller','GIZ');
-end
-
-if not(exist('type','var')) || isempty(type)
-    type = 'fix';
-end
-
-
-% we're pointing to (an) event(s)
-if not(exist('isfact','var')) || isempty(isfact)
-    isfact = ones(1,numel(event));
+defifnotexist('GIZ',evalin('caller','GIZ'));
+defifnotexist('type','fix');
+if isempty(event)
+    error('specify at least one predictor')
 end
 if ischar(event)
     event = {event};
 end
+defifnotexist('isfact',ones(1,numel(event)));
 
 % delete '-'events from the model
 todel = strncmp('-',event,1);

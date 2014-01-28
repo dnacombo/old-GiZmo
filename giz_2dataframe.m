@@ -4,9 +4,7 @@ function [dat frame] = giz_2dataframe(GIZ)
 % create frame variable (cellarray of strings to be printed as text)
 % and (if needed) a data file corresponding to current model in GIZ
 
-if not(exist('GIZ','var'))
-    GIZ = evalin('caller','GIZ');
-end
+defifnotexist('GIZ',evalin('caller','GIZ'));
 
 GIZ = giz_check_XY(GIZ);
 

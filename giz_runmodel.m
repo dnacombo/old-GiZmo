@@ -5,14 +5,10 @@ function GIZ = giz_runmodel(GIZ,imod)
 % prepare a Rscript and run it.
 % data and frame should already be on disk.
 
-if not(exist('GIZ','var')) || isempty(GIZ)
-    GIZ = evalin('caller','GIZ');
-end
+defifnotexist('GIZ',evalin('caller','GIZ'));
+defifnotexist('imod',GIZ.imod);
 
-if not(exist('imod','var')) || isempty(imod)
-    imod = GIZ.imod;
-end
-
+cd(GIZ.wd);
 how_much_at_once = 1000;
 
 Rpath = giz_checkR;
@@ -29,7 +25,7 @@ fclose(fid);
 
 % for all the models we want to run
 for imod = imod
-    txt = {};
+    txt = {'require(R.matlab)'};
     
     m = GIZ.model(imod);
     

@@ -1,8 +1,6 @@
 function formula = giz_model_formula(GIZ)
 
-if not(exist('GIZ','var'))
-    GIZ = evalin('caller','GIZ');
-end
+defifnotexist('GIZ',evalin('caller','GIZ'));
 
 m = GIZ.model(GIZ.imod);
 

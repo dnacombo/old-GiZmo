@@ -1,19 +1,15 @@
-function giz_save(GIZ,force)
+function giz_save(GIZ,filename,force)
 
 % giz_save(GIZ,force)
 % save the GIZ structure
 % overwrite without prompt if force is true
-if not(exist('GIZ','var')) || isempty(GIZ)
-    GIZ = evalin('caller','GIZ');
-end
-
-if not(exist('force','var')) || isempty(force)
-    force = 0;
-end
+defifnotexist('GIZ',evalin('caller','GIZ'));
+defifnotexist('force',0);
+defifnotexist(filename,'GIZ');
 
 if not(force)
-    if exist(fullfile(GIZ.wd,'GIZ.mat'),'file')
-        rep = questdlg(['File ' fullfile(GIZ.wd,'GIZ.mat') ' exists. Overwrite?'],'giz_save: File Exists','No');
+    if exist(fullfile(GIZ.wd,[filename,'.mat']),'file')
+        rep = questdlg(['File ' fullfile(GIZ.wd,[filename,'.mat']) ' exists. Overwrite?'],'giz_save: File Exists','No');
         switch rep
             case 'No'
                 return
@@ -37,7 +33,7 @@ for imod = 1:numel(GIZ.model)
     end
 end
 
-save(fullfile(GIZ.wd,'GIZ.mat'),'GIZ');
+save(fullfile(GIZ.wd,[filename,'.mat']),'GIZ');
 
 
 
