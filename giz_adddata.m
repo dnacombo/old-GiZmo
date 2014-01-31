@@ -33,9 +33,10 @@ elseif isstruct(DATA) && isfield(DATA,'setname')
     DATA.ursetname = EEG.setname;
     
     DATA.DAT = eeg_getdatact(EEG);
+    DATA.unit = '\{mu}V';
     DATA.dims(1).name = 'channels';
     DATA.dims(1).range = {EEG.chanlocs.labels};
-    DATA.dims(1).unit = '\{mu}V';
+    DATA.dims(1).unit = '';
     DATA.dims(1).etc = EEG.chanlocs;
     DATA.dims(2).name = 'time';
     DATA.dims(2).range = EEG.xmin:1/EEG.srate:EEG.xmax;
@@ -51,6 +52,90 @@ elseif isstruct(DATA) && isfield(DATA,'setname')
     GIZ.idat = s.idat;
 elseif isstruct(DATA) && isfield(DATA,'cluster')
     % assume STUDY structure.
+    
+    STUDY = DATA; clear DATA
+    if ~isempty([STUDY.design(STUDY.currentdesign).variable.label])
+        error('I don''t deal with multiple variable designs. Choose a simple design with NO conditions')
+    end
+    ALLEEG = s.ALLEEG; s = rmfield(s,'ALLEEG');
+    disp(['Adding STUDY ' STUDY.name ' to GIZ.DATA'])
+    DATA.urfname = fullfile(STUDY.filepath,STUDY.filename);
+    DATA.ursetname = STUDY.name;
+    
+    % see what's in there
+    isread = fieldnames(STUDY.changrp);
+    isread = regexp(isread,'(.*)datatrials','tokens');
+    isread = isread(~emptycells(isread));
+    isread = cellfun(@(x)x{1},isread);
+    if isfield(s,'datatype')
+        isread = intersect(isread,s.datatype);
+    end
+    if isempty(isread)
+        disp('Please first read STUDY data (using std_readersp or std_readerp)');
+        disp('Remember to turn ''singletrial'' ''on''');
+        return
+    end
+    v = struct2vararg(s);
+    for iread = 1:numel(isread)
+        switch isread{iread}
+            case {'ersp' 'erpim' 'itc' 'timef'}
+                is3D = 1;
+            case {'erp'}
+                is3D = 0;
+            otherwise
+                error todo
+        end
+        % loop through channels/clusters
+        % to retrieve data
+        init = 0;
+        emptychans = emptycells({STUDY.changrp.([isread{iread} 'datatrials'])});
+        firstchan = find(~emptychans,1);
+        tmpdat = NaN([sum(~emptychans) size(STUDY.changrp(firstchan).([isread{iread} 'datatrials']){1})],'single');
+        for i_chan = find(~emptychans)
+            if is3D
+                tmpdat(i_chan,:,:,:) = STUDY.changrp(i_chan).([isread{iread} 'datatrials']){1};
+            else
+                tmpdat(i_chan,:,:) = STUDY.changrp(i_chan).([isread{iread} 'datatrials']){1};
+            end
+        end
+            
+        DATA.DAT = tmpdat;
+        DATA.unit = '';
+        DATA.dims(1).name = 'channels';
+        DATA.dims(1).range = {STUDY.changrp(~emptychans).channels};
+        DATA.dims(1).unit = '';
+        DATA.dims(1).etc = eeg_mergelocs(ALLEEG.chanlocs);
+        DATA.dims(1).etc = DATA.dims(1).etc(~emptychans);
+        
+        if is3D
+            DATA.dims(end+1).name = 'frequency';
+            DATA.dims(2).range = STUDY.changrp(firstchan).([isread{iread} 'freqs']);
+            DATA.dims(2).unit = 'Hz';
+        end
+        DATA.dims(end+1).name = 'time';
+        DATA.dims(end).range = STUDY.changrp(firstchan).([isread{iread} 'times']);
+        DATA.dims(end).unit = 'ms';
+        DATA.dims(end+1).name = 'trials';
+        DATA.dims(end).range = 1:size(tmpdat,numel(DATA.dims));
+        
+        tmp = std_maketrialinfo(STUDY,ALLEEG);
+        % recover event structure from each dataset
+        DATA.event = [];
+        for idat = 1:numel(tmp.datasetinfo)
+            fn = fieldnames(tmp.datasetinfo(idat).trialinfo);
+            itris = numel(DATA.event) + (1:numel(tmp.datasetinfo(idat).trialinfo));
+            for ifn = 1:numel(fn)
+                [DATA.event(itris).(fn{ifn})] = tmp.datasetinfo(idat).trialinfo(1:numel(tmp.datasetinfo(idat).trialinfo)).(fn{ifn});
+            end
+            datat = repmat({idat},numel(itris),1);
+            % create a dataset event with dataset number
+            [DATA.event(itris).dataset] = datat{:};
+        end
+        DATA.eventdim = numel(DATA.dims);
+        
+        GIZ.DATA{s.idat} = DATA;
+        GIZ.idat = s.idat;
+    end
     
 elseif isstr(DATA) && exist(DATA,'file')
     % assume text file (table)
