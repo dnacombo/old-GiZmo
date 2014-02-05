@@ -32,11 +32,14 @@ end
 event(todel) = [];
 isfact(todel) = [];
 
+ix = size(vertcat(GIZ.model(GIZ.imod).X.event),1);
 switch type
     case 'fix'
         % then add predictor
-        ix = numel([GIZ.model(GIZ.imod).X.event]);
         for i_c = 1:numel(event)
+            if not(isfield(GIZ.DATA{GIZ.idat}.event,event{i_c}))
+                error(['No event named ' event{i_c} ' in the data'])
+            end
             GIZ.model(GIZ.imod).X(i_c + ix).event = event{i_c};
             GIZ.model(GIZ.imod).X(i_c + ix).effect = 'fix';
             GIZ.model(GIZ.imod).X(i_c + ix).isfact = isfact(i_c);
@@ -44,12 +47,21 @@ switch type
     case 'rand'
         % this should point to an event, that will be used to split the
         % data, and should also point to some of the fix
-        error('todo')
-        if all(not(strcmp('fix',{GIZ.model(GIZ.imod).X(i_c + ix).effect})))
+        ifix = strcmp('fix',{GIZ.model(GIZ.imod).X.effect});
+        if all(not(ifix))
             error('First specify fixed effects')
         end
-        
-        
+        grouper = event{1}; % grouping variable
+        grouped = event{2}; % fixed effects to group 
+        % (we will compute one coefficient per group for each of these
+        % hiera)
+        if not(isfield(GIZ.DATA{GIZ.idat}.event,grouper))
+            error(['No event named ' event{i_c} ' in the data'])
+        end
+        GIZ.model(GIZ.imod).X(ix+1).event = grouper;
+        GIZ.model(GIZ.imod).X(ix+1).effect = 'rand';
+        GIZ.model(GIZ.imod).X(ix+1).isfact = isfact(1);
+        GIZ.model(GIZ.imod).X(ix+1).grouped = grouped;
 end
 
 GIZ.model(GIZ.imod).type = fastif(any(strcmp({GIZ.model(GIZ.imod).X.effect},'rand')),'lmer','glm');

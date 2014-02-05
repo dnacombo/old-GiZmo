@@ -25,9 +25,10 @@ fclose(fid);
 
 % for all the models we want to run
 for imod = imod
-    txt = {'require(R.matlab)'};
-    
     m = GIZ.model(imod);
+    txt = {'require(R.matlab)'
+        fastif(strcmp(m.type,'lmer'),'require(lme4)','')};
+        
     
     % now need to create a R script and run it.
     % first we check how we're going to play around with data in dataframe and
@@ -64,7 +65,7 @@ for imod = imod
         {''}
         % here we create a function that we'll run either once, or in blocks
         % of nblocs untill all the data has been modeled
-        ['f <- function (' fastif(Allatonce,'','Y,') 'fr) {']
+        ['f <- function (' fastif(Allatonce,'','Y') ') {']
         %%%%%%%%
         % display a text progress bar
         '    assign("i",i + 1,envir = .GlobalEnv)'
@@ -79,17 +80,24 @@ for imod = imod
         case 'glm'
             txt = [txt; ['    glm.fit(x=x,y=Y, family= ' m.Y.family '() )']];
         case 'lmer'
-            error('todo')
-            line = 'lmer(';
+            txt = [txt; ['    refit(mylme,Y)']];
     end
     txt = [txt;'}';{''}];
     
     %%%%%%%% end of estimation function
     %%% here we prepare the design matrix if necessary
     if not(Allatonce)
-        txt = [txt;
-            'fr <- GiZframe'
-            'x <- model.matrix(' regexprep(formula,'.*(~.*)','$1') ')'];
+        switch m.type
+            case 'glm'
+            txt = [txt;
+                'x <- model.matrix(' regexprep(formula,'.*(~.*)','$1') ')'];
+            case 'lmer'
+            txt = [txt;
+                ['fid <- file(description = "' m.name '_dat.dat",open="rb" )']
+                ['Y <- readBin(con=fid,what="numeric",n=nobss,size=4,endian="little")']
+                'mylme <- lmer(' formula ', family=' m.Y.family '())'
+                'close(fid)'];
+        end
     end
     
     %%%%%%%%
@@ -114,8 +122,14 @@ for imod = imod
                     writebin([m.name '_resids.dat'],'residuals')
                     ];
             case 'lmer'
-                error('todo')
-                line = 'lmer(';
+                txt = [txt;
+                    'coefs = coef(res)'
+                    'residuals = resid(res)'
+                    checkdel([m.name '_coefs.dat']);
+                    checkdel([m.name '_resids.dat']);
+                    writebin([m.name '_coefs.dat'],'coefs')
+                    writebin([m.name '_resids.dat'],'residuals')
+                    ];
         end
     else
         % repeatedly (in a while loop) if we need to scan a bigger data file
@@ -128,7 +142,10 @@ for imod = imod
                     checkdel([m.name '_coefs.dat']);
                     checkdel([m.name '_resids.dat']);];
             case 'lmer'
-                error
+                txt = [txt;
+                    {''}
+                    checkdel([m.name '_coefs.dat']);
+                    checkdel([m.name '_resids.dat']);];
         end
         
         txt = [txt;
@@ -144,7 +161,7 @@ for imod = imod
             % reshape data
             '    dim(dat) <- c(nobss,length(dat)/nobss)'
             % apply the model fit to that chunck
-            '    res <- apply(dat,2,f,fr=GiZframe)'
+            '    res <- apply(dat,2,f)'
             ];
         switch m.type
             case 'glm'
@@ -158,7 +175,17 @@ for imod = imod
                     writebin([m.name '_resids.dat'],'residuals');
                     ];
             case 'lmer'
-                error('todo')
+                txt = [txt;
+                    {''}
+                    % extract coefs and resid
+                    '    ranefs = sapply(res,ranef)'
+                    '    fixefs = sapply(res,fixef)'
+                    '    residuals = sapply(res,resid)'
+                    % save chunk of coefs and resid
+                    writebin([m.name '_ranefs.dat'],'ranefs');
+                    writebin([m.name '_fixefs.dat'],'fixefs');
+                    writebin([m.name '_resids.dat'],'residuals');
+                    ];
         end
         txt = [txt;
             '}'
@@ -189,7 +216,7 @@ if isunix
     !chmod +x Runscript
 end
 !./Runscript
-delete('Runscript')
+%delete('Runscript')
 
 function txt = writebin(fname,datvar)
 

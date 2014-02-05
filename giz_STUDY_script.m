@@ -49,3 +49,16 @@ axis xy;
 subplot(2,1,2);
 imagesc(GIZ.DATA{2}.dims(3).range,GIZ.DATA{2}.dims(2).range,squeeze(GIZ.model(2).coefficients(26,:,:,2))');
 axis xy;
+
+
+%%
+
+GIZ = giz_empty;
+GIZ = giz_adddata(GIZ,STUDY,'ALLEEG',ALLEEG,'datatype','erp');
+GIZ = giz_emptymodel(GIZ,1,'name','erps_randintercept');
+GIZ = giz_model_Y(GIZ,1);
+GIZ = giz_model_X(GIZ,{'StimUnc'});
+GIZ = giz_model_X(GIZ,{'dataset',{'1'}},'rand',1);
+[ok] = giz_prerunmodel(GIZ);
+GIZ = giz_runmodel(GIZ);
+GIZ = giz_readmodel(GIZ);
