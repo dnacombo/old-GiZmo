@@ -22,9 +22,11 @@ for imod = imod
     coefss = [s(dimsplit)];
     ncoefs = f.bytes / (4*prod(coefss));
     coefss = [ncoefs coefss];
-    
+    disp('Reading coefficients')
     GIZ.model(imod).coefficients = ipermute(reshape(loadbin([m.name '_coefs.dat']),coefss),[dimsm dimsplit]);
+    disp('Reading residuals')
     GIZ.model(imod).residuals = ipermute(reshape(loadbin([m.name '_resids.dat']),s([dimsm dimsplit])),[dimsm dimsplit]);
+    disp('Reading info')
     GIZ.model(imod).info = load([m.name '_info.mat']);
 end
 

@@ -41,4 +41,4 @@ switch m.type
         end
 end
 
-
+disp(['model formula is ' formula])

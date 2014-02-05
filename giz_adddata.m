@@ -136,6 +136,8 @@ elseif isstruct(DATA) && isfield(DATA,'cluster')
         if not(isempty(s.split))
             if not(isfield(DATA.event,s.split))
                 error(['no event named ' s.split '... cannot split the data.']);
+            else
+                disp(['Splitting DATA by ' s.split])
             end
             splitter = {DATA.event.(s.split)};
             if iscellstr(splitter)

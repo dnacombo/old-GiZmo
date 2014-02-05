@@ -1,11 +1,11 @@
 function giz_save(GIZ,filename,force)
 
-% giz_save(GIZ,force)
+% giz_save(GIZ, filename, force)
 % save the GIZ structure
 % overwrite without prompt if force is true
 defifnotexist('GIZ',evalin('caller','GIZ'));
 defifnotexist('force',0);
-defifnotexist(filename,'GIZ');
+defifnotexist('filename','GIZ');
 
 if not(force)
     if exist(fullfile(GIZ.wd,[filename,'.mat']),'file')

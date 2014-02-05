@@ -1,12 +1,17 @@
 function GIZ = giz_runmodel(GIZ,imod)
 
-% GIZ = giz_runmodel(GIZ,imod)
+% GIZ = giz_runmodel(GIZ)
 % run the current model in R
-% prepare a Rscript and run it.
-% data and frame should already be on disk.
+% GIZ = giz_runmodel(GIZ,imod)
+% run model imod
+% 
+% This function prepares a Rscript and runs it.
+% data and model frame should already be on disk.
 
 defifnotexist('GIZ',evalin('caller','GIZ'));
 defifnotexist('imod',GIZ.imod);
+
+disp(['Running model ' num2str(imod) '(' GIZ.model(imod).name ')'])
 
 cd(GIZ.wd);
 how_much_at_once = 1000;
@@ -14,6 +19,8 @@ how_much_at_once = 1000;
 Rpath = giz_checkR;
 if not(Rpath)
     error('must install R')
+else
+    disp('R is installed properly.')
 end
 % Initialize batch
 fid = fopen(fullfile(GIZ.wd,'Runscript'),'wt');
@@ -215,6 +222,8 @@ end
 if isunix
     !chmod +x Runscript
 end
+disp('Now running script in R...')
+disp(['see ' fullfile(GIZ.wd,[m.name '.Rout']) ' to follow the process...'])
 !./Runscript
 %delete('Runscript')
 

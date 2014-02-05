@@ -39,6 +39,8 @@ switch type
         for i_c = 1:numel(event)
             if not(isfield(GIZ.DATA{GIZ.idat}.event,event{i_c}))
                 error(['No event named ' event{i_c} ' in the data'])
+            else
+                disp(['Adding fixed effect predictor ' event{i_c} fastif(isfact(i_c),' as a factor','')])
             end
             GIZ.model(GIZ.imod).X(i_c + ix).event = event{i_c};
             GIZ.model(GIZ.imod).X(i_c + ix).effect = 'fix';
@@ -57,6 +59,8 @@ switch type
         % hiera)
         if not(isfield(GIZ.DATA{GIZ.idat}.event,grouper))
             error(['No event named ' event{i_c} ' in the data'])
+            else
+                disp(['Adding groupping predictor ' grouper ' for ' grouped ])
         end
         GIZ.model(GIZ.imod).X(ix+1).event = grouper;
         GIZ.model(GIZ.imod).X(ix+1).effect = 'rand';

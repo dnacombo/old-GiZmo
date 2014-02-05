@@ -8,10 +8,11 @@ defifnotexist('GIZ',evalin('caller','GIZ'));
 
 [dat, frame] = giz_2dataframe(GIZ);
 
-
+disp('Writing dataframe.')
 ok = write_table(fullfile(GIZ.wd,[GIZ.model(GIZ.imod).name '_frame.txt']),frame);
 
 if not(isempty(dat))
+    disp('Writing data.')
     fid = fopen(fullfile(GIZ.wd,[GIZ.model(GIZ.imod).name '_dat.dat']),'w','ieee-le');
     if fid == -1
         error('Cannot write file. Check permissions and space.')

@@ -11,9 +11,8 @@ defifnotexist('GIZ',evalin('caller','GIZ'));
 
 if not(exist('imod','var')) || isempty(imod)
     imod = GIZ.imod + 1;
-else
-    GIZ.imod = imod;
 end
+GIZ.imod = imod;
 if GIZ.imod == 0 || imod == 0
     GIZ.model = [];
     GIZ.imod = 1;
@@ -41,6 +40,7 @@ defmod.coefficients = [];
 defmod.residuals = [];
 defmod.info = [];
 
+disp(['Creating empty model ' num2str(GIZ.imod)]);
 if isempty(GIZ.model)
     GIZ.model = setdef(newmod,defmod);
 else

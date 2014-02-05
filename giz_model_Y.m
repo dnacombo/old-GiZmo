@@ -13,6 +13,7 @@ defifnotexist('GIZ',evalin('caller','GIZ'));
 % clear eventual results
 GIZ = giz_clearmodel(GIZ);
 if isnumeric(idat)
+    disp(['Adding Y = DATA{' num2str(idat) '}'])
     % assume we're pointing to DATA
     GIZ = giz_model_idat(GIZ,idat);
     GIZ.model(GIZ.imod).Y.event = '';
@@ -27,6 +28,7 @@ if isnumeric(idat)
 elseif ischar(idat)
     % assume we're pointing to an event
     event = idat;
+    disp(['Adding Y = ' event])
     GIZ = giz_model_idat(GIZ,GIZ.idat);
     clear idat
     
