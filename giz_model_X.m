@@ -62,6 +62,8 @@ switch type
         GIZ.model(GIZ.imod).X(ix+1).effect = 'rand';
         GIZ.model(GIZ.imod).X(ix+1).isfact = isfact(1);
         GIZ.model(GIZ.imod).X(ix+1).grouped = grouped;
+    otherwise
+        error('Predictor type not implemented')
 end
 
 GIZ.model(GIZ.imod).type = fastif(any(strcmp({GIZ.model(GIZ.imod).X.effect},'rand')),'lmer','glm');

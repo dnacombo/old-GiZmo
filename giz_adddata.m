@@ -4,6 +4,7 @@ defifnotexist('GIZ',evalin('caller','GIZ'));
 ndat = numel(GIZ.DATA);
 
 defs.idat = ndat+1;
+defs.split = [];
 s = setdef(vararg2struct(varargin),defs);
 
 if isempty(DATA)
@@ -132,9 +133,42 @@ elseif isstruct(DATA) && isfield(DATA,'cluster')
             [DATA.event(itris).dataset] = datat{:};
         end
         DATA.eventdim = numel(DATA.dims);
-        
-        GIZ.DATA{s.idat} = DATA;
-        GIZ.idat = s.idat;
+        if not(isempty(s.split))
+            if not(isfield(DATA.event,s.split))
+                error(['no event named ' s.split '... cannot split the data.']);
+            end
+            splitter = {DATA.event.(s.split)};
+            if iscellstr(splitter)
+                usplit = unique(splitter);
+            else
+                splitter = [splitter{:}];
+                usplit = unique(splitter);
+            end
+            for isplit = 1:numel(usplit)
+                if iscellstr(splitter)
+                    idxsplit = strcmp(splitter,usplit{isplit});
+                else
+                    idxsplit = splitter == usplit(isplit);
+                end
+                d = DATA;
+                str = ['d.DAT('];
+                for i = 1:DATA.eventdim-1
+                    str = [str ':,'];
+                end
+                str = [str 'idxsplit,'];
+                for i = DATA.eventdim+1:ndims(DATA.DAT)
+                    str = [str ':,'];
+                end
+                str(end) = [];str = [str ');'];
+                d.DAT = eval(str);
+                d.event = d.event(idxsplit);
+                GIZ.DATA{s.idat+isplit-1} = d;
+                GIZ.idat = s.idat;
+            end
+        else
+            GIZ.DATA{s.idat} = DATA;
+            GIZ.idat = s.idat;
+        end
     end
     
 elseif isstr(DATA) && exist(DATA,'file')
