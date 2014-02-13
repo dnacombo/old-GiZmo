@@ -21,7 +21,7 @@ end
 if ischar(event)
     event = {event};
 end
-defifnotexist('isfact',ones(1,numel(event)));
+defifnotexist('isfact',~strcmp(event,'1'));
 
 % delete '-'events from the model
 todel = strncmp('-',event,1);
@@ -37,7 +37,7 @@ switch type
     case 'fix'
         % then add predictor
         for i_c = 1:numel(event)
-            if not(isfield(GIZ.DATA{GIZ.idat}.event,event{i_c}))
+            if not(isfield(GIZ.DATA{GIZ.idat}.event,event{i_c})) && ~strcmp(event{i_c},'1')
                 error(['No event named ' event{i_c} ' in the data'])
             else
                 disp(['Adding fixed effect predictor ' event{i_c} fastif(isfact(i_c),' as a factor','')])
@@ -55,8 +55,8 @@ switch type
         end
         grouper = event{1}; % grouping variable
         grouped = event{2}; % fixed effects to group 
-        % (we will compute one coefficient per group for each of these
-        % hiera)
+        % (lmer will compute one coefficient per group for each of these
+        % grouped events)
         if not(isfield(GIZ.DATA{GIZ.idat}.event,grouper))
             error(['No event named ' event{i_c} ' in the data'])
             else

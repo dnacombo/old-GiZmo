@@ -18,7 +18,7 @@ if GIZ.imod == 0 || imod == 0
     GIZ.imod = 1;
     imod = 1;
 end
-defmod.name = '';
+defmod.name = ['model_' datestr(now,'dd-mmm-yyyy_HH-MM-SS')] ;
 defmod.type = '';
 defmod.idat = [];% pointer to DATA index
 defmod.Y.family = '';% distribution family of data

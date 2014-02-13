@@ -23,3 +23,21 @@ for i = 1:numel(fields2remove)
 end
 
 % need to also delete the files.
+m = GIZ.model(GIZ.imod);
+fs = {'_coefs.dat' '_ranefs.dat' '_fixefs.dat' '_resids.dat'};
+for i = 1:numel(fs)
+    fn = [m.name fs{i}];
+    if exist(fn,'file') 
+        delete(fn);
+    end
+end
+
+
+
+
+
+
+
+
+
+

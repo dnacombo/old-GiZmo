@@ -10,6 +10,9 @@ function GIZ = giz_model_Y(GIZ,idat)
 
 defifnotexist('GIZ',evalin('caller','GIZ'));
 
+if isempty(GIZ.imod)
+    giz_emptymodel(GIZ);
+end
 % clear eventual results
 GIZ = giz_clearmodel(GIZ);
 if isnumeric(idat)

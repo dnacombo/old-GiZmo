@@ -10,6 +10,7 @@ s = setdef(vararg2struct(varargin),defs);
 if isempty(DATA)
     GIZ.DATA(s.idat) = [];
 elseif isnumeric(DATA)
+    disp('Adding matrix data to GIZ.DATA')
     DATA = struct('DAT',DATA);
     for i_dim = 1:ndims(DATA.DAT)
         DATA.dims(i_dim).name = ['dimension' num2str('%02g',i_dim)];
@@ -84,7 +85,7 @@ elseif isstruct(DATA) && isfield(DATA,'cluster')
             case {'erp'}
                 is3D = 0;
             otherwise
-                error todo
+                error('cannot read other than ersp erpim itc timef erp')
         end
         % loop through channels/clusters
         % to retrieve data
