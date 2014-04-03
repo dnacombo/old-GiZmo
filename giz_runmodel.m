@@ -8,7 +8,9 @@ function GIZ = giz_runmodel(GIZ,imod)
 % This function prepares a Rscript and runs it.
 % data and model frame should already be on disk.
 
-defifnotexist('GIZ',evalin('caller','GIZ'));
+if not(exist('GIZ','var'))
+    GIZ = evalin('caller','GIZ');
+end
 defifnotexist('imod',GIZ.imod);
 
 disp(['Running model ' num2str(imod) '(' GIZ.model(imod).name ')'])

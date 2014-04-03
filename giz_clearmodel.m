@@ -3,7 +3,9 @@ function GIZ = giz_clearmodel(GIZ)
 % remove all previously run model estimates (useful when changing model
 % parameters).
 
-defifnotexist('GIZ',evalin('caller','GIZ'));
+if not(exist('GIZ','var'))
+    GIZ = evalin('caller','GIZ');
+end
 
 
 fields2remove = {'coefficients','residuals'};

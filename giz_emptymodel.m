@@ -20,8 +20,9 @@ if GIZ.imod == 0 || imod == 0
 end
 defmod.name = ['model_' datestr(now,'dd-mmm-yyyy_HH-MM-SS')] ;
 defmod.type = '';
-defmod.idat = [];% pointer to DATA index
+defmod.Y.idat = [];% pointer to DATA index
 defmod.Y.family = '';% distribution family of data
+defmod.Y.transform = [];% handle to data transform function
 defmod.Y.event = '';% event field to be used
 %                                  if this stays empty, we'll use the
 %                                  DATA(idat).DAT directly. 
@@ -35,6 +36,9 @@ defmod.Y.dimsplit = [];% pointers to dimensions of data that
 %                                     at once. 
 defmod.X.event = '';% event name of the predictor 
 defmod.X.effect = '';% 'fix' or 'rand'
+defmod.X.transform = [];% handle to a function used for 
+%                         transforming values of the predictor
+%                         (@zscore, @log ...)
 defmod.X.isfact = [];% true if it's a factor
 defmod.coefficients = [];
 defmod.residuals = [];

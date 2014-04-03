@@ -3,9 +3,8 @@ function GIZ = giz_model_idat(GIZ,idat)
 % change model data pointer. Reset all Y and X specifications if events
 % don't exist in new data.
 
-if isempty(GIZ.model(GIZ.imod).idat)
-%     GIZ = giz_emptymodel(GIZ,GIZ.imod,'name',GIZ.model(GIZ.imod).name);
-    GIZ.model(GIZ.imod).idat = idat;
+if isempty(GIZ.model(GIZ.imod).Y.idat)
+    GIZ.model(GIZ.imod).Y.idat = idat;
     return
 end
 if  idat ~= GIZ.model(GIZ.imod).idat
@@ -18,5 +17,5 @@ if  idat ~= GIZ.model(GIZ.imod).idat
         disp(currentevents(~goodevents))
         GIZ = giz_emptymodel(GIZ,GIZ.imod,'name',GIZ.model(GIZ.imod).name);
     end
-    GIZ.model(GIZ.imod).idat = idat;
+    GIZ.model(GIZ.imod).Y.idat = idat;
 end

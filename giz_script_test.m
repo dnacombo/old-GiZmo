@@ -17,9 +17,7 @@ GIZ = giz_emptymodel(GIZ);
 GIZ.model(GIZ.imod).name = 'test01';
 
 GIZ = giz_model_Y(GIZ,'ReportCorrect');
-% GIZ = giz_model_Y(GIZ,{1 'ReportCorrect'});
-GIZ = giz_model_X(GIZ,{'StimUnc' 'StimExc' 'LeftRight'});
-% GIZ = giz_model_X(GIZ,1);
+GIZ = giz_model_X(GIZ,'event',{'StimUnc' 'StimExc' 'LeftRight'});
 
 [ok] = giz_prerunmodel(GIZ);
 GIZ = giz_runmodel(GIZ);

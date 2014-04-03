@@ -4,7 +4,9 @@ function [ok] = giz_prerunmodel(GIZ)
 % prepare model data files (frame and dat) on disk.
 % later to be loaded in R
 
-defifnotexist('GIZ',evalin('caller','GIZ'));
+if not(exist('GIZ','var'))
+    GIZ = evalin('caller','GIZ');
+end
 
 [dat, frame] = giz_2dataframe(GIZ);
 
@@ -20,8 +22,7 @@ if not(isempty(dat))
     count = fwrite(fid,dat,'single');
     fclose(fid);
     if count ~= numel(dat)
-        error('Error writing data to file');
+        error('Error writing data to file... (Not enough space?)');
     else ok = 1;
     end
-    % save(fullfile(GIZ.wd,[GIZ.model(GIZ.imod).name '_dat.mat']),'dat');
 end

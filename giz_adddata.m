@@ -1,6 +1,16 @@
 function GIZ = giz_adddata(GIZ,DATA,varargin)
 
-defifnotexist('GIZ',evalin('caller','GIZ'));
+if not(exist('GIZ','var'))
+    try
+        GIZ = evalin('caller','GIZ');
+    catch
+        GIZ = [];
+    end
+end
+
+if isempty(GIZ)
+    GIZ = giz_empty;
+end
 ndat = numel(GIZ.DATA);
 
 defs.idat = ndat+1;

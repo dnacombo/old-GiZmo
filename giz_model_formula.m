@@ -11,7 +11,7 @@ dataframestring = 'GiZframe$';
 formula = [fastif(Yindataframe,[dataframestring m.Y.event],'Y') ' ~ '];
 
 if not(any(strcmp({m.X.event},'1')))
-    formula = [formula '-1'];
+    formula = [formula '-1 + '];
 else
     m.X.event(strcmp({m.X.event},'1')) = [];
 end
