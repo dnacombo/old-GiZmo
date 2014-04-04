@@ -78,6 +78,8 @@ if exist('Y','var')
     % later we'll need to pass information to runmodel so that it knows what
     % it is supposed to split and what not.
     dat = Y;
+else
+    dat = [];
 end
 
 if nargout == 0

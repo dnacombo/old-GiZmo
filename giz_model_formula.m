@@ -6,8 +6,11 @@ m = GIZ.model(GIZ.imod);
 
 Yindataframe = isempty(m.Y.dimsplit);
 
-dataframestring = 'GiZframe$';
-
+if GIZ.useR
+    dataframestring = 'GiZframe$';
+else
+    dataframestring = '';
+end
 formula = [fastif(Yindataframe,[dataframestring m.Y.event],'Y') ' ~ '];
 
 if not(any(strcmp({m.X.event},'1')))

@@ -7,7 +7,6 @@ function [ok] = giz_prerunmodel(GIZ)
 if not(exist('GIZ','var'))
     GIZ = evalin('caller','GIZ');
 end
-
 [dat, frame] = giz_2dataframe(GIZ);
 
 disp('Writing dataframe.')
@@ -26,3 +25,4 @@ if not(isempty(dat))
     else ok = 1;
     end
 end
+
