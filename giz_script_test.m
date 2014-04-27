@@ -4,9 +4,9 @@
 
 addpath(fileparts(which(mfilename)))
 
-% cd /DATAtest
+cd /DATAtest
 % EEG = pop_loadset;
-cd /Gal_01/Max/Test
+% cd /Gal_01/Max/Test
 % EEG = pop_loadset('APP2_S001_viscor_sacrej_icacor.set');
 % cd /Osz_01/Max/test
 
