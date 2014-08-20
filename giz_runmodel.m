@@ -87,6 +87,7 @@ if GIZ.useR
         
         switch m.type
             case 'glm'
+                error('I rather need to fit with glm and then extract coefficients[,''t value'']')
                 txt = [txt; ['    glm.fit(x=x,y=Y, family= ' m.Y.family '() )']];
             case 'lmer'
                 txt = [txt; ['    refit(mylme,Y)']];

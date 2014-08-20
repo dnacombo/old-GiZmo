@@ -13,7 +13,9 @@ else
 end
 formula = [fastif(Yindataframe,[dataframestring m.Y.event],'Y') ' ~ '];
 
-if not(any(strcmp({m.X.event},'1')))
+if not(any(strcmp({m.X.event},'1'))) && not(all(~[m.X.isfact]))
+    % we remove the intercept if we haven't asked for it,
+    % but not if all predictors are not factorial
     formula = [formula '-1 + '];
 else
     m.X.event(strcmp({m.X.event},'1')) = [];
