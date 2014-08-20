@@ -1,6 +1,6 @@
-function [ok] = giz_prerunmodel(GIZ)
+function [GIZ,ok] = giz_prerunmodel(GIZ)
 
-% [ok] = giz_prerunmodel(GIZ)
+% [GIZ] = giz_prerunmodel(GIZ)
 % prepare model data files (frame and dat) on disk.
 % later to be loaded in R
 
@@ -13,7 +13,7 @@ disp('Writing dataframe.')
 ok = write_table(fullfile(GIZ.wd,[GIZ.model(GIZ.imod).name '_frame.txt']),frame);
 
 if not(isempty(dat))
-    disp('Writing data.')
+    disp(['Writing data. (' num2str(numel(dat)*4*fastif(isa(dat,'single'),1,2),'%.3g') ' bytes)'])
     fid = fopen(fullfile(GIZ.wd,[GIZ.model(GIZ.imod).name '_dat.dat']),'w','ieee-le');
     if fid == -1
         error('Cannot write file. Check permissions and space.')

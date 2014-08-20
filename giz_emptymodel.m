@@ -6,7 +6,7 @@ function GIZ = giz_emptymodel(GIZ,imod,varargin)
 % e.g. 'name','testmodel'
 %
 
-newmod = vararg2struct(varargin);
+newmod = vararg2struct(varargin,'');
 defifnotexist('GIZ',evalin('caller','GIZ'));
 
 if not(exist('imod','var')) || isempty(imod)

@@ -7,7 +7,7 @@ GIZ = struct;
 GIZ.wd = cd;
 GIZ.idat = 0;
 GIZ.imod = 0;
-GIZ.useR = 0;
+GIZ.useR = 1;
 % DATA structures
 GIZ.DATA = {};
 % format will be:

@@ -17,7 +17,7 @@ for imod = imod
     end
     dimsm = m.Y.dimsm;
     dimsplit = m.Y.dimsplit;
-    s = size(GIZ.DATA{m.idat}.DAT);
+    s = size(GIZ.DATA{m.Y.idat}.DAT);
     f = dir([m.name '_coefs.dat']);
     coefss = [s(dimsplit)];
     ncoefs = f.bytes / (4*prod(coefss));

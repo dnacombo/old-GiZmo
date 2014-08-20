@@ -1,16 +1,14 @@
 function GIZ = giz_adddata(GIZ,DATA,varargin)
 
-if not(exist('GIZ','var'))
-    try
-        GIZ = evalin('caller','GIZ');
-    catch
-        GIZ = [];
-    end
-end
+% GIZ = giz_adddata(GIZ,DATA,varargin)
+%
+% Add data DATA to the GIZ structure.
+% DATA can be :
+%           EEG structure (may be ALLEEG vector)
+%           STUDY structure
+%           data matrix
+%           cell array of several of the above
 
-if isempty(GIZ)
-    GIZ = giz_empty;
-end
 ndat = numel(GIZ.DATA);
 
 defs.idat = ndat+1;
@@ -39,29 +37,34 @@ elseif isstruct(DATA) && isfield(DATA,'dims')
     GIZ.idat = s.idat;
 elseif isstruct(DATA) && isfield(DATA,'setname')
     % assume EEG structure.
-    EEG = DATA;clear DATA
-    disp(['Adding ' EEG.setname ' to GIZ.DATA'])
-    DATA.urfname = fullfile(EEG.filepath,EEG.filename);
-    DATA.ursetname = EEG.setname;
-    
-    DATA.DAT = eeg_getdatact(EEG);
-    DATA.unit = '\{mu}V';
-    DATA.dims(1).name = 'channels';
-    DATA.dims(1).range = {EEG.chanlocs.labels};
-    DATA.dims(1).unit = '';
-    DATA.dims(1).etc = EEG.chanlocs;
-    DATA.dims(2).name = 'time';
-    DATA.dims(2).range = EEG.xmin:1/EEG.srate:EEG.xmax;
-    DATA.dims(2).unit = 's';
-    DATA.dims(3).name = 'trials';
-    DATA.dims(3).range = 1:EEG.trials;
-    
-    tmp = std_maketrialinfo(struct,EEG);
-    DATA.event = tmp.datasetinfo.trialinfo;
-    DATA.eventdim = 3;
-    
-    GIZ.DATA{s.idat} = DATA;
-    GIZ.idat = s.idat;
+    s.idat = s.idat-1;
+    for i_eeg = 1:numel(DATA)
+        s.idat = s.idat+1;
+        EEG = DATA(i_eeg);
+        disp(['Adding ' EEG.setname ' to GIZ.DATA'])
+        clear D
+        D.urfname = fullfile(EEG.filepath,EEG.filename);
+        D.ursetname = EEG.setname;
+        
+        D.DAT = eeg_getdatact(EEG);
+        D.unit = '\{mu}V';
+        D.dims(1).name = 'channels';
+        D.dims(1).range = {EEG.chanlocs.labels};
+        D.dims(1).unit = '';
+        D.dims(1).etc = EEG.chanlocs;
+        D.dims(2).name = 'time';
+        D.dims(2).range = EEG.xmin:1/EEG.srate:EEG.xmax;
+        D.dims(2).unit = 's';
+        D.dims(3).name = 'trials';
+        D.dims(3).range = 1:EEG.trials;
+        
+        tmp = std_maketrialinfo(struct,EEG);
+        D.event = tmp.datasetinfo.trialinfo;
+        D.eventdim = 3;
+        
+        GIZ.DATA{s.idat} = D;
+        GIZ.idat = s.idat;
+    end
 elseif isstruct(DATA) && isfield(DATA,'cluster')
     % assume STUDY structure.
     
@@ -84,7 +87,7 @@ elseif isstruct(DATA) && isfield(DATA,'cluster')
     end
     if isempty(isread)
         disp('Please first read STUDY data (using std_readersp or std_readerp)');
-        disp('Remember to turn ''singletrial'' ''on''');
+        disp('Remember to turn ''singletrials'' ''on''');
         return
     end
     v = struct2vararg(s);
@@ -185,7 +188,5 @@ elseif isstruct(DATA) && isfield(DATA,'cluster')
     end
     
 elseif isstr(DATA) && exist(DATA,'file')
-    % assume text file (table)
-    % assume MATLAB file
 end
 
