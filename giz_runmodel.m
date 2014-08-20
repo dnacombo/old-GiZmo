@@ -123,8 +123,8 @@ if GIZ.useR
             switch m.type
                 case 'glm'
                     txt = [txt;
-                        'coefs = coef(res)'
-                        'residuals = resid(res)'
+                        'coefs <- coef(res)'
+                        'residuals <- resid(res)'
                         checkdel([m.name '_coefs.dat']);
                         checkdel([m.name '_resids.dat']);
                         writebin([m.name '_coefs.dat'],'coefs')
@@ -132,8 +132,8 @@ if GIZ.useR
                         ];
                 case 'lmer'
                     txt = [txt;
-                        'coefs = coef(res)'
-                        'residuals = resid(res)'
+                        'coefs <- coef(res)'
+                        'residuals <- resid(res)'
                         checkdel([m.name '_coefs.dat']);
                         checkdel([m.name '_resids.dat']);
                         writebin([m.name '_coefs.dat'],'coefs')
@@ -177,8 +177,8 @@ if GIZ.useR
                     txt = [txt;
                         {''}
                         % extract coefs and resid
-                        '    coefs = sapply(res,coef)'
-                        '    residuals = sapply(res,resid)'
+                        '    coefs <- sapply(res,coef)'
+                        '    residuals <- sapply(res,resid)'
                         % save chunk of coefs and resid
                         writebin([m.name '_coefs.dat'],'coefs');
                         writebin([m.name '_resids.dat'],'residuals');
@@ -187,9 +187,9 @@ if GIZ.useR
                     txt = [txt;
                         {''}
                         % extract coefs and resid
-                        '    ranefs = sapply(res,ranef)'
-                        '    fixefs = sapply(res,fixef)'
-                        '    residuals = sapply(res,resid)'
+                        '    ranefs <- sapply(res,ranef)'
+                        '    fixefs <- sapply(res,fixef)'
+                        '    residuals <- sapply(res,resid)'
                         % save chunk of coefs and resid
                         writebin([m.name '_ranefs.dat'],'ranefs');
                         writebin([m.name '_fixefs.dat'],'fixefs');
