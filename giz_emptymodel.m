@@ -42,6 +42,7 @@ defmod.X.transform = [];% handle to a function used for
 defmod.X.isfact = [];% true if it's a factor
 defmod.coefficients = [];
 defmod.residuals = [];
+defmod.TStats = [];
 defmod.info = [];
 
 disp(['Creating empty model ' num2str(GIZ.imod)]);

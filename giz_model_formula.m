@@ -1,8 +1,9 @@
-function formula = giz_model_formula(GIZ)
+function formula = giz_model_formula(GIZ,imod)
 
 defifnotexist('GIZ',evalin('caller','GIZ'));
+defifnotexist('imod',GIZ.imod);
 
-m = GIZ.model(GIZ.imod);
+m = GIZ.model(imod);
 
 Yindataframe = isempty(m.Y.dimsplit);
 
@@ -18,7 +19,7 @@ if not(any(strcmp({m.X.event},'1'))) && not(all(~[m.X.isfact]))
     % but not if all predictors are not factorial
     formula = [formula '-1 + '];
 else
-    m.X.event(strcmp({m.X.event},'1')) = [];
+    m.X(strcmp({m.X.event},'1')) = [];
 end
 
 switch m.type

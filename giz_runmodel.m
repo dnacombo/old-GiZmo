@@ -1,9 +1,11 @@
-function GIZ = giz_runmodel(GIZ,imod)
+function GIZ = giz_runmodel(GIZ,imod,form)
 
 % GIZ = giz_runmodel(GIZ)
 % run the current model in R
 % GIZ = giz_runmodel(GIZ,imod)
 % run model imod
+% GIZ = giz_runmodel(GIZ,imod, form)
+% use model formula form
 %
 % This function prepares a Rscript and runs it.
 % data and model frame should already be on disk.
@@ -12,8 +14,6 @@ if not(exist('GIZ','var'))
     GIZ = evalin('caller','GIZ');
 end
 defifnotexist('imod',GIZ.imod);
-
-disp(['Running model ' num2str(imod) '(' GIZ.model(imod).name ')'])
 
 cd(GIZ.wd);
 how_much_at_once = 1000;
@@ -32,8 +32,17 @@ if GIZ.useR
     end
     fclose(fid);
     
+    Routs = {};
     % for all the models we want to run
     for imod = imod
+        disp(['Running model ' num2str(imod) '(' GIZ.model(imod).name ')'])
+        if not(exist('form','var'))
+            % get the R formula corresponding to the current model
+            formula = giz_model_formula(GIZ,imod);
+        else
+            formula = form;
+        end
+
         m = GIZ.model(imod);
         txt = {'require(R.matlab)'
             fastif(strcmp(m.type,'lmer'),'require(lme4)','')};
@@ -82,13 +91,17 @@ if GIZ.useR
             %%%%%%%%
             ];
         
-        % get the R formula corresponding to the current model
-        formula = giz_model_formula(GIZ);
         
         switch m.type
             case 'glm'
-                error('I rather need to fit with glm and then extract coefficients[,''t value'']')
-                txt = [txt; ['    glm.fit(x=x,y=Y, family= ' m.Y.family '() )']];
+                txt = [txt; ['    res <- glm.fit(x=x,y=Y, family= ' m.Y.family '() )']
+                    ['    res$SigmaSq <- sum((Y - x %*% res$coefficients)^2)/(nrow(x)-ncol(x))']
+                    ['    res$VarCovar <- res$SigmaSq * chol2inv(chol(t(x) %*% x))']
+                    ['    res$StdErr <- sqrt(diag(res$VarCovar))']
+                    ['    res$TStat <- res$coefficients/res$StdErr']
+                    ['    res$pval <- 2*(1 - pt(abs(res$TStat),nrow(x)-ncol(x)))']
+                    ['    return(res)']
+                    ];
             case 'lmer'
                 txt = [txt; ['    refit(mylme,Y)']];
         end
@@ -105,7 +118,7 @@ if GIZ.useR
                     txt = [txt;
                         ['fid <- file(description = "' m.name '_dat.dat",open="rb" )']
                         ['Y <- readBin(con=fid,what="numeric",n=nobss,size=4,endian="little")']
-                        'mylme <- lmer(' formula ', family=' m.Y.family '())'
+                        'mylme <- glmer(' formula ', family=' m.Y.family '())'
                         'close(fid)'];
             end
         end
@@ -126,18 +139,29 @@ if GIZ.useR
                     txt = [txt;
                         'coefs <- coef(res)'
                         'residuals <- resid(res)'
+                        'TStats <- res$TStat'
+                        'pvals <- res$pval'
                         checkdel([m.name '_coefs.dat']);
                         checkdel([m.name '_resids.dat']);
+                        checkdel([m.name '_TStats.dat']);
+                        checkdel([m.name '_pvals.dat']);
                         writebin([m.name '_coefs.dat'],'coefs')
                         writebin([m.name '_resids.dat'],'residuals')
+                        writebin([m.name '_TStats.dat'],'TStats')
+                        writebin([m.name '_pvals.dat'],'pvals')
                         ];
                 case 'lmer'
+                    error('todo')
                     txt = [txt;
                         'coefs <- coef(res)'
                         'residuals <- resid(res)'
-                        checkdel([m.name '_coefs.dat']);
+                        'ranefs <- ranef(res)'
+                        'fixefs <- fixef(res)'
+                        checkdel([m.name '_ranefs.dat']);
+                        checkdel([m.name '_fixefs.dat']);
                         checkdel([m.name '_resids.dat']);
-                        writebin([m.name '_coefs.dat'],'coefs')
+                        writebin([m.name '_ranefs.dat'],'ranefs')
+                        writebin([m.name '_fixefs.dat'],'fixefs')
                         writebin([m.name '_resids.dat'],'residuals')
                         ];
             end
@@ -150,12 +174,18 @@ if GIZ.useR
                     txt = [txt;
                         {''}
                         checkdel([m.name '_coefs.dat']);
-                        checkdel([m.name '_resids.dat']);];
+                        checkdel([m.name '_resids.dat']);
+                        checkdel([m.name '_TStats.dat']);
+                        checkdel([m.name '_pvals.dat']);
+                        ];
                 case 'lmer'
                     txt = [txt;
                         {''}
                         checkdel([m.name '_coefs.dat']);
-                        checkdel([m.name '_resids.dat']);];
+                        checkdel([m.name '_resids.dat']);
+                        checkdel([m.name '_ranefs.dat']);
+                        checkdel([m.name '_fixefs.dat']);
+                        ];
             end
             
             txt = [txt;
@@ -180,15 +210,19 @@ if GIZ.useR
                         % extract coefs and resid
                         '    coefs <- sapply(res,coef)'
                         '    residuals <- sapply(res,resid)'
+                        '    TStats <- sapply(res,function(x){x$TStat})'
+                        '    pvals <- sapply(res,function(x){x$pval})'
                         % save chunk of coefs and resid
                         writebin([m.name '_coefs.dat'],'coefs');
                         writebin([m.name '_resids.dat'],'residuals');
+                        writebin([m.name '_TStats.dat'],'TStats');
+                        writebin([m.name '_pvals.dat'],'pvals');
                         ];
                 case 'lmer'
                     txt = [txt;
                         {''}
                         % extract coefs and resid
-                        '    ranefs <- sapply(res,ranef)'
+                        '    ranefs <- c(sapply(res,ranef),recursive=T)'
                         '    fixefs <- sapply(res,fixef)'
                         '    residuals <- sapply(res,resid)'
                         % save chunk of coefs and resid
@@ -202,11 +236,16 @@ if GIZ.useR
                 % done, close file
                 'close(fid)'
                 ];
-            
-            txt = [txt;
-                ['writeMat("' m.name '_info.mat",coefs=attributes(res[[1]]$coefficients))']
-                ];
-            
+            switch m.type
+                case 'glm'
+                    txt = [txt;
+                        ['writeMat("' m.name '_info.mat",coefs=attributes(res[[1]]$coefficients))']
+                        ];
+                case 'lmer'
+                    txt = [txt;
+                        ['writeMat("' m.name '_info.mat",ranefs=colnames(ranef(res[[1]])[[1]]),fixefs=names(fixef(res[[1]])))']
+                        ];
+            end
         end
         %%%%%%%%%%%%% now actually write the R script.
         fid = fopen(fullfile(GIZ.wd,[m.name '.R']),'wt');
@@ -220,15 +259,16 @@ if GIZ.useR
         str = ['R CMD BATCH ' [m.name '.R']];
         fprintf(fid,'%s\n',str);
         fclose(fid);
+        Routs{end+1} = fullfile(GIZ.wd,[m.name '.Rout']);
     end
     %%%%%%%%%%%%%%%%%% done. Run it!
     if isunix
         !chmod +x Runscript
     end
     disp('Now running script in R...')
-    disp(['see ' fullfile(GIZ.wd,[m.name '.Rout']) ' to follow the process...'])
+    fprintf(['see\n' sprintf('%s\n',Routs{:})  'to follow the process...\n'])
     !./Runscript
-    %delete('Runscript')
+    delete('Runscript')
 else
     for imod = imod
         m = GIZ.model(imod);

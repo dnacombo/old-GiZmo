@@ -6,13 +6,14 @@ function GIZ = giz_model_X(GIZ,varargin)
 % input key value pairs:
 %       'event', cell array of strings pointing to event names in the
 %               DATA{idat}.event structure. Can add several predictors of
-%               the same type (see below) at once
+%               the same type (see below) at once.
 %               if event string starts with '-', the predictor is removed.
 %
 %       'type', string describing effect type: Fixed ('fix') or random
 %               ('rand'). rand effects are hierarchical. They apply to
-%               certain fixed effects or just to the intercept of the model
-%               if no fixed effect is provided. 
+%               certain fixed effects (pointed to in a second cell of
+%               the 'event' argument above) or just to the intercept of the
+%               model if no fixed effect is provided. 
 %
 %       'transform', a function handle (or a cell array of handles)
 %               specifiing if and how a given predictor should be
@@ -55,7 +56,7 @@ event(todel) = [];
 isfact(todel) = [];
 %%%%%
 
-ix = size(vertcat(GIZ.model(GIZ.imod).X.event),1);
+ix = sum(~emptycells({GIZ.model(GIZ.imod).X.event}));
 switch type
     case 'fix'
         % then add predictor
@@ -80,7 +81,11 @@ switch type
             error('First specify fixed effects')
         end
         grouper = event{1}; % grouping variable
-        grouped = event{2}; % fixed effects to group
+        if numel(event) < 2 % fixed effects to group
+            grouped = {'1'};% intercept
+        else
+            grouped = event{2};% or specified
+        end
         % (lmer will compute one coefficient per group for each of these
         % grouped events)
         if not(isfield(GIZ.DATA{GIZ.idat}.event,grouper))
