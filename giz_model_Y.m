@@ -20,8 +20,8 @@ end
 % clear eventual results
 GIZ = giz_clearmodel(GIZ);
 if isnumeric(idat)
-    disp(['Adding Y = DATA{' num2str(idat) '}'])
     % assume we're pointing to DATA
+    disp(['Adding Y = DATA{' num2str(idat) '}'])
     GIZ = giz_model_idat(GIZ,idat);
     GIZ.model(GIZ.imod).Y.event = '';
     

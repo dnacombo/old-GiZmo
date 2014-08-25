@@ -1,13 +1,12 @@
 function GIZ = giz_emptymodel(GIZ,imod,varargin)
 
-% GIZ = giz_emptymodel(GIZ)
+% GIZ = giz_emptymodel(GIZ,imod,varargin)
 % add an empty model
 % We possibly add model parameters right here via varargin.
 % e.g. 'name','testmodel'
 %
 
 newmod = vararg2struct(varargin,'');
-defifnotexist('GIZ',evalin('caller','GIZ'));
 
 if not(exist('imod','var')) || isempty(imod)
     imod = GIZ.imod + 1;
@@ -40,7 +39,9 @@ defmod.X.transform = [];% handle to a function used for
 %                         transforming values of the predictor
 %                         (@zscore, @log ...)
 defmod.X.isfact = [];% true if it's a factor
-defmod.coefficients = [];
+
+defmod.fixefs = [];
+defmod.ranefs = [];
 defmod.residuals = [];
 defmod.TStats = [];
 defmod.info = [];

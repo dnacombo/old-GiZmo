@@ -15,7 +15,7 @@ for imod = imod
     m = GIZ.model(imod);
     switch m.type
         case 'glm'
-            shouldbehere = {'.R' '.Rout' '_coefs.dat' '_resids.dat'};
+            shouldbehere = {'.R' '.Rout' '_fixefs.dat' '_resids.dat'};
         case 'lmer'
             shouldbehere = {'.R' '.Rout' '_fixefs.dat' '_ranefs.dat' '_resids.dat'};
     end
@@ -30,12 +30,12 @@ for imod = imod
     s = size(GIZ.DATA{m.Y.idat}.DAT);
     switch m.type
         case 'glm'
-            f = dir([GIZ.wd filesep m.name '_coefs.dat']);
+            f = dir([GIZ.wd filesep m.name '_fixefs.dat']);
             coefss = [s(dimsplit)];
             ncoefs = f.bytes / (4*prod(coefss));
             coefss = [ncoefs coefss];
             disp('Reading coefficients')
-            GIZ.model(imod).coefficients = ipermute(reshape(loadbin([GIZ.wd filesep m.name '_coefs.dat']),coefss),[dimsm dimsplit]);
+            GIZ.model(imod).fixefs = ipermute(reshape(loadbin([GIZ.wd filesep m.name '_fixefs.dat']),coefss),[dimsm dimsplit]);
             disp('Reading TStats')
             GIZ.model(imod).TStats = ipermute(reshape(loadbin([GIZ.wd filesep m.name '_TStats.dat']),coefss),[dimsm dimsplit]);
         case 'lmer'

@@ -56,7 +56,7 @@ end
 for i_t = find(~emptycells({m.X.transform}))
     if ischar(e(1).(m.X(i_t).event))
         disp({e.(m.X(i_t).event)})
-        error('Cannot normalize this...')
+        error('Cannot work numerically on this...')
     end
     switch class(m.X(i_t).transform)
         case 'function_handle'

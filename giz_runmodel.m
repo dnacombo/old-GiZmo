@@ -37,7 +37,7 @@ if GIZ.useR
     for imod = imod
         disp(['Running model ' num2str(imod) '(' GIZ.model(imod).name ')'])
         if not(exist('form','var'))
-            % get the R formula corresponding to the current model
+            % get the R default formula corresponding to the current model
             formula = giz_model_formula(GIZ,imod);
         else
             formula = form;
@@ -118,8 +118,15 @@ if GIZ.useR
                     txt = [txt;
                         ['fid <- file(description = "' m.name '_dat.dat",open="rb" )']
                         ['Y <- readBin(con=fid,what="numeric",n=nobss,size=4,endian="little")']
-                        'mylme <- glmer(' formula ', family=' m.Y.family '())'
                         'close(fid)'];
+                    switch m.Y.family
+                        case 'gaussian'
+                            txt = [txt;
+                                ['mylme <- lmer(' formula ')']];
+                        otherwise
+                            txt = [txt;
+                                ['mylme <- glmer(' formula ', family=' m.Y.family '())']];
+                    end
             end
         end
         
@@ -141,11 +148,11 @@ if GIZ.useR
                         'residuals <- resid(res)'
                         'TStats <- res$TStat'
                         'pvals <- res$pval'
-                        checkdel([m.name '_coefs.dat']);
+                        checkdel([m.name '_fixefs.dat']);
                         checkdel([m.name '_resids.dat']);
                         checkdel([m.name '_TStats.dat']);
                         checkdel([m.name '_pvals.dat']);
-                        writebin([m.name '_coefs.dat'],'coefs')
+                        writebin([m.name '_fixefs.dat'],'coefs')
                         writebin([m.name '_resids.dat'],'residuals')
                         writebin([m.name '_TStats.dat'],'TStats')
                         writebin([m.name '_pvals.dat'],'pvals')
@@ -153,7 +160,6 @@ if GIZ.useR
                 case 'lmer'
                     error('todo')
                     txt = [txt;
-                        'coefs <- coef(res)'
                         'residuals <- resid(res)'
                         'ranefs <- ranef(res)'
                         'fixefs <- fixef(res)'
@@ -173,7 +179,7 @@ if GIZ.useR
                 case 'glm'
                     txt = [txt;
                         {''}
-                        checkdel([m.name '_coefs.dat']);
+                        checkdel([m.name '_fixefs.dat']);
                         checkdel([m.name '_resids.dat']);
                         checkdel([m.name '_TStats.dat']);
                         checkdel([m.name '_pvals.dat']);
@@ -181,7 +187,6 @@ if GIZ.useR
                 case 'lmer'
                     txt = [txt;
                         {''}
-                        checkdel([m.name '_coefs.dat']);
                         checkdel([m.name '_resids.dat']);
                         checkdel([m.name '_ranefs.dat']);
                         checkdel([m.name '_fixefs.dat']);
@@ -213,7 +218,7 @@ if GIZ.useR
                         '    TStats <- sapply(res,function(x){x$TStat})'
                         '    pvals <- sapply(res,function(x){x$pval})'
                         % save chunk of coefs and resid
-                        writebin([m.name '_coefs.dat'],'coefs');
+                        writebin([m.name '_fixefs.dat'],'coefs');
                         writebin([m.name '_resids.dat'],'residuals');
                         writebin([m.name '_TStats.dat'],'TStats');
                         writebin([m.name '_pvals.dat'],'pvals');
@@ -239,11 +244,11 @@ if GIZ.useR
             switch m.type
                 case 'glm'
                     txt = [txt;
-                        ['writeMat("' m.name '_info.mat",coefs=attributes(res[[1]]$coefficients))']
+                        ['writeMat("' m.name '_info.mat",fixefs=attributes(res[[1]]$coefficients)),TStats=attributes(res[[1]]$coefficients))']
                         ];
                 case 'lmer'
                     txt = [txt;
-                        ['writeMat("' m.name '_info.mat",ranefs=colnames(ranef(res[[1]])[[1]]),fixefs=names(fixef(res[[1]])))']
+                        ['writeMat("' m.name '_info.mat",ranefs=list(names=colnames(ranef(res[[1]])[[1]])),fixefs=list(names=names(fixef(res[[1]]))))']
                         ];
             end
         end
