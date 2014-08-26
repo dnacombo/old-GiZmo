@@ -9,6 +9,8 @@ if not(exist('GIZ','var'))
 end
 [dat, frame] = giz_2dataframe(GIZ);
 
+GIZ = giz_clearmodel(GIZ);
+
 disp('Writing dataframe.')
 ok = write_table(fullfile(GIZ.wd,[GIZ.model(GIZ.imod).name '_frame.txt']),frame);
 

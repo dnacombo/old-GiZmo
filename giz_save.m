@@ -8,7 +8,7 @@ defifnotexist('force',0);
 defifnotexist('filename','GIZ');
 
 if not(force)
-    if exist(fullfile(GIZ.wd,[filename,'.mat']),'file')
+    if exist(fullfile(GIZ.wd,[filename,'.giz']),'file')
         rep = questdlg(['File ' fullfile(GIZ.wd,[filename,'.mat']) ' exists. Overwrite?'],'giz_save: File Exists','No');
         switch rep
             case 'No'
@@ -32,8 +32,14 @@ for imod = 1:numel(GIZ.model)
         GIZ.model(imod).(model2del{i_mod}) = [];
     end
 end
-
-save(fullfile(GIZ.wd,[filename,'.mat']),'GIZ');
+[p f e] = fileparts(filename);
+if not(isempty(p))
+    warning(['Saving in ' GIZ.wd ', not in ' p])
+end
+if isempty(e)
+    e = '.giz';
+end
+save(fullfile(GIZ.wd,[f e]),'GIZ');
 
 
 

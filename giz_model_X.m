@@ -94,7 +94,7 @@ switch type
             error(['No event named ' grouper ' in the data'])
         else
             gpd = regexprep(grouped,'^1$','Intercept');
-            disp(['Adding groupping predictor ' grouper ' for ' sprintf('%s ',gpd{:}) ])
+            disp(['Adding random effect: groupping predictor ' grouper ' for ' sprintf('%s ',gpd{:}) ])
         end
         GIZ.model(GIZ.imod).X(ix+1).event = grouper;
         GIZ.model(GIZ.imod).X(ix+1).effect = type;
@@ -141,13 +141,13 @@ switch type
             tmpdd.event = tmpd.event(dselect);
             tmpdd.dims(targetdim).range = tmpd.dims(targetdim).range(dselect);
             urs(targetdim) = sum(dselect);
-            tmpdd.DAT = reshape(tmpdd.DAT,urs);
+            tmpdd.DAT = reshape(tmpdd.DAT,urs(toperm));
             tmpdd.DAT = ipermute(tmpdd.DAT,toperm);
             GIZ = giz_adddata(GIZ,tmpdd);
             if isa(splitterEach,'cell')
                 tmp = splitterEach{i_split};
             else
-                tmp = num2str(splitterEach(i_split));
+                tmp = num2str(splitterEach(i_split),['%0' num2str(ceil(log10(nsplit))) 'g']);
             end
             GIZ = giz_emptymodel(GIZ,urnmod+i_split,'name',[urname '_' tmp]);
             GIZ = giz_model_Y(GIZ,urndat+i_split);
@@ -165,9 +165,5 @@ end
 
 GIZ.model(GIZ.imod).type = fastif(any(strcmp({GIZ.model(GIZ.imod).X.effect},'rand')),'lmer','glm');
 
-% Now split data & model in agreement with 'split' event
-if any(strcmp({GIZ.model(GIZ.imod).X.effect},'split'))
-    
-end
 
 

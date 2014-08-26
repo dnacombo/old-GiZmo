@@ -17,8 +17,6 @@ end
 if isempty(GIZ.imod) || GIZ.imod == 0
     GIZ = giz_emptymodel(GIZ);
 end
-% clear eventual results
-GIZ = giz_clearmodel(GIZ);
 if isnumeric(idat)
     % assume we're pointing to DATA
     disp(['Adding Y = DATA{' num2str(idat) '}'])

@@ -8,7 +8,7 @@ m = GIZ.model(imod);
 Yindataframe = isempty(m.Y.dimsplit);
 
 if GIZ.useR
-    dataframestring = 'GiZframe$';
+    dataframestring = '';
 else
     dataframestring = '';
 end

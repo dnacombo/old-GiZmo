@@ -35,7 +35,7 @@ if GIZ.useR
     Routs = {};
     % for all the models we want to run
     for imod = imod
-        disp(['Running model ' num2str(imod) '(' GIZ.model(imod).name ')'])
+        disp(['Script for model ' num2str(imod) '(' GIZ.model(imod).name ')'])
         if not(exist('form','var'))
             % get the R default formula corresponding to the current model
             formula = giz_model_formula(GIZ,imod);
@@ -113,19 +113,19 @@ if GIZ.useR
             switch m.type
                 case 'glm'
                     txt = [txt;
-                        'x <- model.matrix(' regexprep(formula,'.*(~.*)','$1') ')'];
+                        'x <- model.matrix(' regexprep(formula,'.*(~.*)','$1') ',data=GiZframe)'];
                 case 'lmer'
                     txt = [txt;
                         ['fid <- file(description = "' m.name '_dat.dat",open="rb" )']
-                        ['Y <- readBin(con=fid,what="numeric",n=nobss,size=4,endian="little")']
+                        ['GiZframe$Y <- readBin(con=fid,what="numeric",n=nobss,size=4,endian="little")']
                         'close(fid)'];
                     switch m.Y.family
                         case 'gaussian'
                             txt = [txt;
-                                ['mylme <- lmer(' formula ')']];
+                                ['mylme <- lmer(' formula ',data=GiZframe)']];
                         otherwise
                             txt = [txt;
-                                ['mylme <- glmer(' formula ', family=' m.Y.family '())']];
+                                ['mylme <- glmer(' formula ', family=' m.Y.family '(),data=GiZframe)']];
                     end
             end
         end
@@ -244,7 +244,7 @@ if GIZ.useR
             switch m.type
                 case 'glm'
                     txt = [txt;
-                        ['writeMat("' m.name '_info.mat",fixefs=attributes(res[[1]]$coefficients)),TStats=attributes(res[[1]]$coefficients))']
+                        ['writeMat("' m.name '_info.mat",fixefs=attributes(res[[1]]$coefficients),TStats=attributes(res[[1]]$coefficients))']
                         ];
                 case 'lmer'
                     txt = [txt;
