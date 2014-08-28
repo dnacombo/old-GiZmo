@@ -38,6 +38,9 @@ for i_g = togroup % for each of the models to catenate
     m = GIZ.model(i_g);
     dimsm = m.Y.dimsm; % will catenate on the modeled dimension
     d = m.(what);% this is the data to append
+    if isempty(d)
+        error('Read model data first (giz_readmodel)')
+    end
     newDATA.DAT = cat(dimsm,newDATA.DAT,d);% append along dimsm
     % create event struct
     eff = m.info.(what).names;

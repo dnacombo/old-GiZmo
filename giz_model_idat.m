@@ -7,7 +7,7 @@ if isempty(GIZ.model(GIZ.imod).Y.idat)
     GIZ.model(GIZ.imod).Y.idat = idat;
     return
 end
-if  idat ~= GIZ.model(GIZ.imod).idat
+if  idat ~= GIZ.model(GIZ.imod).Y.idat
     currentevents = {GIZ.model(GIZ.imod).X.event GIZ.model(GIZ.imod).Y.event };
     currentevents = currentevents(~emptycells(currentevents));
     goodevents = isfield(GIZ.DATA{idat}.event,currentevents);

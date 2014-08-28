@@ -28,24 +28,33 @@ if not(exist('GIZ','var'))
     GIZ = evalin('caller','GIZ');
 end
 type = [];transform = [];
-setdefvarargin(varargin,'event',[],'type','fix','transform',{[]},'isfact',[]);
+setdefvarargin(varargin,'event',[],'type','fix','transform',{[]},'isfact',0);
 if isempty(event)
     error('specify at least one predictor')
 end
 if ischar(event)
     event = {event};
 end
-defifnotexist('isfact',~strcmp(event,'1'));
 if any(strcmp(class(transform),{'function_handle' 'char'})) || isempty(transform)
     transform = {transform};
 end
 if numel(transform) == 1 && numel(event) > 1
     transform = repmat(transform,numel(event),1);
 end
+if numel(isfact) == 1
+    isfact = repmat(isfact,1,numel(event));
+end
 
 %%%% delete '-'events from the model
 todel = strncmp('-',event,1);
-for i = find(todel);
+for i = find(todel)
+    if isempty(i)
+        continue
+    end
+    if strcmp(event{i},'-1')
+        todel(i) = 0;
+        continue
+    end
     tmp = strcmp({GIZ.model(GIZ.imod).X.event},event{i}(2:end));
     if sum(tmp)
         GIZ.model(GIZ.imod).X(tmp) = [];
@@ -63,7 +72,7 @@ switch type
     case 'fix'
         % then add predictor
         for i_c = 1:numel(event) % could add several predictors of the same type at once
-            if not(isfield(GIZ.DATA{GIZ.idat}.event,event{i_c})) && ~strcmp(event{i_c},'1')
+            if not(isfield(GIZ.DATA{GIZ.idat}.event,event{i_c})) && ~strcmp(event{i_c},'1') && ~strcmp(event{i_c},'-1')
                 error(['No event named ' event{i_c} ' in the data'])
             elseif any(strcmp({GIZ.model(GIZ.imod).X.event},event{i_c}))
                 disp(['Event named ' event{i_c} ' already in the model'])
@@ -103,15 +112,14 @@ switch type
     case 'split'
         splitterEv = event{1};
         disp(['Will split data and models according to ' splitterEv])
-        rep = input('Are you sure you want to continue?(y)','s');
-        if ~strcmp(rep,'y')
-            error(['Not splitting according to ' splitterEv]);
-        end
+%         rep = input('Are you sure you want to continue?(y)','s');
+%         if ~strcmp(rep,'y')
+%             error(['Not splitting according to ' splitterEv]);
+%         end
+        [m GIZ.model] = pop(GIZ.model,GIZ.imod);
         urnmod = numel(GIZ.model);
         urndat = numel(GIZ.DATA);
-        urname = GIZ.model(GIZ.imod).name;
-        % get rid of all other models
-        m = GIZ.model(GIZ.imod);
+        urname = m.name;
         if isempty(m.Y.idat)
             error('Specify data to work with before splitting models');
         end

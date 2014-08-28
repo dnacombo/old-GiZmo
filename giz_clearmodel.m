@@ -7,7 +7,6 @@ if not(exist('GIZ','var'))
     GIZ = evalin('caller','GIZ');
 end
 
-
 fields2remove = {'fixefs','ranefs','residuals'};
 for i = 1:numel(fields2remove)
     test(i) = isfield(GIZ.model(GIZ.imod),fields2remove{i}) && ~isempty(GIZ.model(GIZ.imod).(fields2remove{i}));
