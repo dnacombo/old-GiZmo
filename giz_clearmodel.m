@@ -7,7 +7,6 @@ if not(exist('GIZ','var'))
     GIZ = evalin('caller','GIZ');
 end
 
-
 fields2remove = {'fixefs','ranefs','residuals'};
 for i = 1:numel(fields2remove)
     test(i) = isfield(GIZ.model(GIZ.imod),fields2remove{i}) && ~isempty(GIZ.model(GIZ.imod).(fields2remove{i}));
@@ -26,11 +25,12 @@ end
 
 % need to also delete the files.
 m = GIZ.model(GIZ.imod);
-fs = {'_ranefs.dat' '_fixefs.dat' '_resids.dat'};
+fs = {'*.dat' '_info.mat' '_frame.txt' '.R' '.Rout'};
 for i = 1:numel(fs)
     fn = [m.name fs{i}];
-    if exist(fn,'file') 
-        delete(fn);
+    ff = dir(fn);
+    if not(isempty(ff))
+        delete(ff.name);
     end
 end
 

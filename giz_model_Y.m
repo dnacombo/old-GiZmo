@@ -4,21 +4,19 @@ function GIZ = giz_model_Y(GIZ,idat, varargin)
 % choose data to work with for current model
 %
 % if idat is numeric, then it's just pointing to a given DATA structure
-%
-% if idat is a cell, it should have 2 elements, one pointing to a DATA
-% structure, the second (a string) pointing to an event of that DATA
+% if idat is a cell, first element points to a DATAh structure and second
+% element is an event field name
+% if idat is a char, we assume it is pointing to an event of GIZ.DATA{GIZ.idat}
 
 setdefvarargin(varargin,'transform',[]);
 
 if not(exist('GIZ','var'))
     GIZ = evalin('caller','GIZ');
 end
-
+defifnotexist('idat',GIZ.idat);
 if isempty(GIZ.imod) || GIZ.imod == 0
     GIZ = giz_emptymodel(GIZ);
 end
-% clear eventual results
-GIZ = giz_clearmodel(GIZ);
 if isnumeric(idat)
     % assume we're pointing to DATA
     disp(['Adding Y = DATA{' num2str(idat) '}'])
@@ -34,8 +32,15 @@ if isnumeric(idat)
     % data is 3D and we will model 3rd dimension. We just repeat the same
     % model for the 2 other dimensions
     GIZ.model(GIZ.imod).Y.dimsplit = setxor(1:ndims(GIZ.DATA{GIZ.model(GIZ.imod).Y.idat}.DAT),GIZ.model(GIZ.imod).Y.dimsm);
-elseif ischar(idat)
+elseif ischar(idat) || iscell(idat)
     % assume we're pointing to an event
+    if iscell(idat)
+        GIZ.idat = idat{1};
+        idat = idat{2};
+    end
+    if isempty(GIZ.idat)
+        error('No data pointer defined. Use {idat ''event'' input metod')
+    end
     event = idat;
     disp(['Adding Y = ' event])
     GIZ = giz_model_idat(GIZ,GIZ.idat);

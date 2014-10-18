@@ -1,8 +1,12 @@
-function [GIZ] = giz_readmodel(GIZ,imod,readresiduals)
+function [GIZ] = giz_readmodel(GIZ,imod,what,readresiduals)
 
 % [GIZ] = giz_readmodel(GIZ,imod)
 % read run model into memory.
-% [GIZ] = giz_readmodel(GIZ,imod,readresiduals)
+% [GIZ] = giz_readmodel(GIZ,imod,what)
+% if what is provided, it should be a string or cell array of strings
+% telling which result file to read from the model. Default is fixed
+% effects and Tstatistics {'fixefs','TStats'}
+% [GIZ] = giz_readmodel(GIZ,imod,what,readresiduals)
 % if readresiduals is true, also read the residuals of the model (can be
 % quite big)... default is not to read them.
 
@@ -10,7 +14,11 @@ function [GIZ] = giz_readmodel(GIZ,imod,readresiduals)
 defifnotexist('GIZ',evalin('caller','GIZ'));
 defifnotexist('imod',GIZ.imod);
 defifnotexist('readresiduals',0);
+defifnotexist('what',{'fixefs','TStats'});
 
+if ischar(what)
+    what = {what};
+end
 for imod = imod
     m = GIZ.model(imod);
     switch m.type
@@ -34,24 +42,19 @@ for imod = imod
             coefss = [s(dimsplit)];
             ncoefs = f.bytes / (4*prod(coefss));
             coefss = [ncoefs coefss];
-            disp('Reading coefficients')
-            GIZ.model(imod).fixefs = ipermute(reshape(loadbin([GIZ.wd filesep m.name '_fixefs.dat']),coefss),[dimsm dimsplit]);
-            disp('Reading TStats')
-            GIZ.model(imod).TStats = ipermute(reshape(loadbin([GIZ.wd filesep m.name '_TStats.dat']),coefss),[dimsm dimsplit]);
+            for i_what = 1:numel(what)
+                disp(['Reading ' what{i_what}])
+                GIZ.model(imod).(what{i_what}) = ipermute(reshape(loadbin([GIZ.wd filesep m.name '_' what{i_what} '.dat']),coefss),[dimsm dimsplit]);
+            end
         case 'lmer'
             f = dir([GIZ.wd filesep m.name '_fixefs.dat']);
             coefss = [s(dimsplit)];
             ncoefs = f.bytes / (4*prod(coefss));
             coefss = [ncoefs coefss];
-            disp('Reading fixed coefficients')
-            GIZ.model(imod).fixefs = ipermute(reshape(loadbin([GIZ.wd filesep m.name '_fixefs.dat']),coefss),[dimsm dimsplit]);
-            
-            f = dir([GIZ.wd filesep m.name '_ranefs.dat']);
-            coefss = [s(dimsplit)];
-            ncoefs = f.bytes / (4*prod(coefss));
-            coefss = [ncoefs coefss];
-            disp('Reading random coefficients')
-            GIZ.model(imod).ranefs = ipermute(reshape(loadbin([GIZ.wd filesep m.name '_ranefs.dat']),coefss),[dimsm dimsplit]);
+            for i_what = 1:numel(what)
+                disp(['Reading ' what{i_what}])
+                GIZ.model(imod).(what{i_what}) = ipermute(reshape(loadbin([GIZ.wd filesep m.name '_' what{i_what} '.dat']),coefss),[dimsm dimsplit]);
+            end
     end
     if readresiduals
         disp('Reading residuals')

@@ -14,14 +14,13 @@ else
 end
 formula = [fastif(Yindataframe,[dataframestring m.Y.event],'Y') ' ~ '];
 
-if not(any(strcmp({m.X.event},'1'))) && not(all(~[m.X.isfact]))
+if not(any(strcmp({m.X.event},'1'))) && not(all(~[m.X.isfact])) || any(strcmp({m.X.event},'-1'))
     % we remove the intercept if we haven't asked for it,
     % but not if all predictors are not factorial
     formula = [formula '-1 + '];
-else
-    m.X(strcmp({m.X.event},'1')) = [];
 end
-
+m.X(strcmp({m.X.event},'1')) = [];
+m.X(strcmp({m.X.event},'-1')) = [];
 switch m.type
     case 'lmer'
         for i_fx = 1:numel(m.X)
