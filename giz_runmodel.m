@@ -117,7 +117,7 @@ if GIZ.useR
                 case 'lmer'
                     txt = [txt;
                         ['fid <- file(description = "' m.name '_dat.dat",open="rb" )']
-                        ['Y <- readBin(con=fid,what="numeric",n=nobss,size=4,endian="little")']
+                        ['GiZframe$Y <- readBin(con=fid,what="numeric",n=nobss,size=4,endian="little")']
                         'close(fid)'];
                     switch m.Y.family
                         case 'gaussian'
