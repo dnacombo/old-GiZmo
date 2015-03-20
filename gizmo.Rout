@@ -15,11 +15,3 @@ Tippen Sie 'demo()' für einige Demos, 'help()' für on-line Hilfe, oder
 'help.start()' für eine HTML Browserschnittstelle zur Hilfe.
 Tippen Sie 'q()', um R zu verlassen.
 
-[Vorher gesicherter Workspace wiederhergestellt]
-
-> source("gizfuns.R")
-> gizglm( nblocks = 10000, formula = ~ Luminance, basename = "gizmo")
-> 
-> proc.time()
-       User      System verstrichen 
-     108.37       13.19     1398.87 
