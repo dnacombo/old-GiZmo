@@ -11,7 +11,7 @@ gizglm <- function (formula, basename = 'gizmo', nblocks = 1000, family=gaussian
   
   x <- model.matrix(formula, data = df)
   f <- function (y){
-    glm.fit(x,y,family=family)
+    res = glm.fit(x,y,family=family)
   }
   delifexist(paste0(basename,'_coefs.dat'))
   delifexist(paste0(basename,'_resids.dat'))

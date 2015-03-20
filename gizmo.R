@@ -1,2 +1,2 @@
 source("gizfuns.R")
-gizglm( nblocks = 10000, formula = ~ Luminance, basename = "gizmo")
+gizglm( nblocks = 1000, formula = ~ Luminance, basename = "gizmo")
