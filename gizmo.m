@@ -5,10 +5,14 @@ function res = gizmo(dat,varargin)
 % Writes dat as a binary file to disk
 % 
 % optional name, value pairs
+%   'fbasename' = basename for all files created (default = 'gizmo').
 %   'frame'     = structure to write as data.frame for model.
-%   'formula'   = formula string of the model
-%   'Rfun'      = R function to use for modeling
-%   'doRun'     = boolean whether to run the model in R or not
+%   'asfactors' = logical vector indicating which fields of frame should be
+%                 treated as factors in R (and which ones not).
+%   'formula'   = formula string of the model.
+%   'Rfun'      = R function to use for modeling.
+%   'Rargs'     = other arguments to Rfun (other than frame and formula).
+%   'doRun'     = boolean whether to run the model in R or not.
 %
 %
 
@@ -22,7 +26,9 @@ def = struct('fbasename','gizmo',...
 cfg = setdef(vararg2struct(varargin),def);
 defRargs = struct('Rargs',struct(...
     'formula', cfg.formula, ...
-    'basename', ['"' cfg.fbasename '"']));
+    'basename', ['"' cfg.fbasename '"'],...
+    'nblocks', 1000,...
+    'asfactors',NaN));
 cfg = setdef(cfg,defRargs);
 cfg.Rargs = struct2vararg(cfg.Rargs);
 
@@ -41,8 +47,9 @@ end
 % then write frame to txt
 wfrok = write_table([cfg.fbasename '.df'],struct2table(cfg.frame));
 
+% write a little script for R
 fid = fopen([cfg.fbasename '.R'],'wt');
-str = 'source("gizfuns.R")';
+str = 'source("gizfuns.R")';% that loads giz R functions
 fprintf(fid,'%s\n',str);
 
 str = [cfg.Rfun '( '];
@@ -61,20 +68,27 @@ end
 fprintf(fid,'%s\n',str);
 fclose(fid);
 
+% write a script that will call R and run the above script
 fid = fopen('Runscript.bat','wt');
 str = ['R CMD BATCH ' [cfg.fbasename '.R']];
 fprintf(fid,'%s\n',str);
 fclose(fid);
 
+% delete any previously produced data generated with this fbasename
 delete([cfg.fbasename '_*.dat'])
+delete([cfg.fbasename '_*.txt'])
 
 if isunix
     !chmod +x Runscript.bat
 end
 
-!Runscript.bat
+if cfg.doRun
+    !Runscript.bat
 
-res = giz_readfiles(cfg.fbasename,size(dat));
+    res = giz_readfiles(cfg.fbasename,size(dat));
+else
+    res = 1;
+end
 
 return
 

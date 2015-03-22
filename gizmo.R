@@ -1,2 +1,2 @@
 source("gizfuns.R")
-gizglm( nblocks = 1000, formula = ~ Luminance, basename = "gizmo")
+gizglm( formula = ~ StimExc + StimUnc + SDT, basename = "gizmo", nblocks = 1000, asfactors = NaN)
